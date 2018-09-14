@@ -1,0 +1,26 @@
+What This Tool Does
+
+This code analyzes a volume mesh, checking for topological validity,
+positive cell volumes, size ratio for adjacent cells, dihedral angles,
+and distortion of quadrilateral faces.  Also, mesh length scale
+perpendicular to the surface and along the surface are assessed.
+Finally, if a Pointwise nmb file and the Pointwise GEODE library are
+available, the distance from mesh points that should be on the geometry
+to the actual geometry is assessed.
+
+Much of the code is multi-threaded for speed (since the assessments are
+embarassingly parallel, this is easy to do safely).  Also, to the extent
+possible, the code operates on data streamed from disk rather than
+reading the entire mesh into memory at once.
+
+The topology checks are the biggest user of memory, because those checks
+work by trying to match up the two copies of a triangular or
+quadrilateral face.  Before beginning this process, an estimate of
+required memory is done.  If this requirement is too large a fraction of
+machine memory, a slower, less memory intensive variant of the algorithm
+is invoked.
+
+Mesh I/O is done using a plug-in architecture.  For a given file type,
+there are a total of four functions that must be implemented: 
+
+How to Build
