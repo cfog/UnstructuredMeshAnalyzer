@@ -1,0 +1,13 @@
+.project
+.cproject
+
+*.o
+*.bak
+*~
+
+Makefile
+config.h
+
+analyzeVolMesh
+config.status
+config.log
