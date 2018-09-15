@@ -4024,19 +4024,14 @@ else
 fi
 
 
-echo Geode: $with_geode
-echo GeodeArch: $with_geode_arch
-
 
 
 
 
 
 if test "x$with_geode" == xno; then
-   echo "=xno"
    true
 else
-   echo "other branch"
   if test "x$with_geode_arch" == xno; then
     as_fn_error $? "\"You must also specify --with-geode-arch!\"" "$LINENO" 5
   else
@@ -4046,8 +4041,6 @@ else
     GEODE_LIBS="-L$with_geode/lib/$with_geode_arch -lnmb -lgeom -lvmath"
   fi
 fi
-
-echo $with_debug $CXXFLAGS
 
 # FIXME: Replace `main' with a function in `-lpthread':
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_detach in -lpthread" >&5
