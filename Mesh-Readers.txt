@@ -1,0 +1,62 @@
+The unstructured mesh analyzer interacts with disk files through an
+interface, defined in GMGW_FileWrapper.hxx.  To create a file reader for
+a new file format, you must implement these functions:
+
+void scanFile();
+
+void seekStartOfConnectivity() const;
+void getNextCellConnectivity(int& nConn, unsigned int connect[]) const;
+void getNextVertexCoords(double& x, double& y, double& z) const;
+
+You must also add an entry in the FileWrapper::factory function to be
+able to create the new reader at run time.
+
+What scanFile must do
+---------------------
+
+scanFile must
+
+1. Set the number of entities of each time (vertices, bdry
+triangles, bdry quadrilaterals, tetrahedra, pyramids, prisms, and
+hexahedra).
+
+2. Provide offsets into the file for the starting points of vertex
+coordinates and connectivity, so that subsequent calls can seek directly
+to those locations at need.
+
+3. Set up arrays (in the FileWrapper base class) that identify the type
+of each cell (including bdry faces; these use the VTK cell type
+enumeration, replicated in GMGW_unst.hxx), whether a cell is a bdry
+face, and whether a vertex is a bdry vertex.
+
+What seekStartOfConnectivity must do
+------------------------------------
+
+seekStartOfConnectivity is a virtual function with a definition in the
+FileWrapper base class.  The base class definition moves to the stored
+location of the start of the connectivity in the input file.  Derived
+class versions can add other initialization work that is required before
+starting to read connectivity, as needed; for UGRID files, this is
+needed, but not for VTK files, for instance.
+
+What getNextCellConnectivity must do
+------------------------------------
+
+At the beginning of a call to getNextCellConnectivity, the input file is
+positioned to read a cell's connectivity data.  The function must read
+this data (including adjusting enddianness, as needed), and return the
+number of vertices the cell is connected to and the indices of those
+vertices in canonical order.  (Note: this canonical order corresponds to
+VTK ordering, not UGRID ordering; UGRID numbers vertices of pyramids
+differently from other storage formats.)  Finally, at exit, the input
+file must be positioned to read whatever follows the current cell's
+connectivity.
+
+What getNextVertexCoords must do
+--------------------------------
+
+At the beginning of a call to getNextVertexCoords, the input file is
+positioned to read a vertex's coordinates.  The function must read and
+return this data (including adjusting enddianness, as needed).  Finally,
+at exit, the input file must be positioned to read whatever follows the
+current vertex's coordinates.

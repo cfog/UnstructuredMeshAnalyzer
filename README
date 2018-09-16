@@ -20,7 +20,58 @@ required memory is done.  If this requirement is too large a fraction of
 machine memory, a slower, less memory intensive variant of the algorithm
 is invoked.
 
-Mesh I/O is done using a plug-in architecture.  For a given file type,
-there are a total of four functions that must be implemented: 
+Mesh I/O is done using a plug-in architecture.  See Mesh-Readers.txt for
+more information. 
 
 How to Build
+
+This package uses an autoconf-based build system.
+
+You can run autoconf if you wish, but this isn't strictly necessary, as
+a configure script is also included.
+
+Options to configure, in addition to the standard ones:
+
+  --enable-debug builds without optimization and with debugging enabled.
+
+  --with-geode=/dir/for/Pointwise/GEODE/kernel
+  --with-geode-arch=arch
+       
+       The Pointwise GEODE kernel, if available, can be used to check
+       the projection of surface mesh points to the actual geometry
+       (see below for usage).
+
+       These two options must be supplied together.  Include files for
+       GEODE must be in /dir/for/Pointwise/GEODE/kernel/include, and
+       GEODE libraries must be in
+       /dir/for/Pointwise/GEODE/kernel/lib/arch.
+
+After you run configure, run make (and optionally make install).
+
+How to Run
+
+analyzeVolMesh requires a file type indicator and a base file name.  The
+file type indicator can be vtk for a legacy (ASCII) file, or ugrid for
+UGRID file.  For UGRID files, the UGRID file type specifier (b8, lb8,
+etc) must be supplied as the last argument.  For example,
+
+analyzeVolMesh vtk myMesh
+
+This will read a VTK file called myMesh.vtk
+
+
+
+analyzeVolMesh ugrid myOtherMesh b8
+
+This will read a UGRID file called myOtherMesh.b8.ugrid.  At this point,
+only four-byte integers are handled in UGRID files, even though there
+are variants of the UGRID format that provide eight byte integers.
+
+
+analyzeVolMesh ugrid myOtherMesh -nmb myGeometry.nmb b8
+
+Same as above, but also checks distance from surface mesh points from
+the geometry.
+
+
+
