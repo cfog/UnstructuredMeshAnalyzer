@@ -72,3 +72,10 @@
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 #undef size_t
 
+#ifdef GMGW_INT64
+typedef int64_t GMGW_int;
+#define GMGW_int_format "lu"
+#else
+typedef int32_t GMGW_int;
+#define GMGW_int_format "u"
+#endif

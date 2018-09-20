@@ -631,6 +631,7 @@ GEODE_LIBS
 GEODE_INCLUDE
 GEODE_LFLAGS
 GEODE_DEFINES
+INT_SIZE
 ac_ct_CC
 CFLAGS
 CC
@@ -685,6 +686,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_debug
+enable_64bit_ints
 with_geode
 with_geode_arch
 '
@@ -1322,6 +1324,7 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-debug          Turn on warnings and debugging support
+  --enable-64bits-ints    Use 64 bit integers instead of 32 bit
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -4006,6 +4009,16 @@ _ACEOF
 
 fi
 
+
+
+# Check whether --enable-64bit-ints was given.
+if test "${enable_64bit_ints+set}" = set; then :
+  enableval=$enable_64bit_ints; CXXFLAGS+=" -DGMGW_INT64"
+else
+  CXXFLAGS+=" -DGMGW_INT32"
+fi
+
+echo $CXXFLAGS
 
 
 # Check whether --with-geode was given.

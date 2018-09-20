@@ -6,24 +6,24 @@
  */
 
 /*
-    Copyright (C) The University of British Columbia, 2018.
+ Copyright (C) The University of British Columbia, 2018.
 
-    This file is part of UnstructuredMeshAnalyzer.
+ This file is part of UnstructuredMeshAnalyzer.
 
-    UnstructuredMeshAnalyzer is free software: you can redistribute it
-    and/or modify it under the terms of the GNU General Public License
-    as published by the Free Software Foundation, either version 3 of
-    the License, or (at your option) any later version.
+ UnstructuredMeshAnalyzer is free software: you can redistribute it
+ and/or modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation, either version 3 of
+ the License, or (at your option) any later version.
 
-    UnstructuredMeshAnalyzer is distributed in the hope that it will be
-    useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    General Public License for more details.
+ UnstructuredMeshAnalyzer is distributed in the hope that it will be
+ useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with UnstructuredMeshAnalyzer.  If not, see
-    <https://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with UnstructuredMeshAnalyzer.  If not, see
+ <https://www.gnu.org/licenses/>.
+ */
 
 #include <cmath>
 #include <cassert>
@@ -34,21 +34,23 @@
 static const double angleBinBdrys[] =
   { 0, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108,
       114, 120, 126, 132, 138, 144, 150, 156, 162, 168, 174, 180 };
-static const int nAngleBins = 30;
+static const GMGW_int nAngleBins = 30;
 
 static const double distortBinBdrys[] =
   { 0, 1. / 1048576, 1. / 524288, 1. / 262144, 1. / 131072, 1. / 65536, 1.
       / 32768, 1. / 16384, 1. / 8192, 1. / 4096, 1. / 2048, 1. / 1024, 1. / 512,
       1. / 256, 1. / 128, 1. / 64, 1. / 32, 1. / 16, 1. / 8, 1. / 4, 1. / 2, 1 };
-static const int nDistortBins = 21;
+static const GMGW_int nDistortBins = 21;
 
 void
-outputAngleHistograms(FILE* angleFile, const int quadFaceAngles[],
-		      const int triFaceAngles[], const int dihedralsQuadQuad[],
-		      const int dihedralsQuadTri[], const int dihedralsTriTri[])
+outputAngleHistograms(FILE* angleFile, const GMGW_int quadFaceAngles[],
+		      const GMGW_int triFaceAngles[],
+		      const GMGW_int dihedralsQuadQuad[],
+		      const GMGW_int dihedralsQuadTri[],
+		      const GMGW_int dihedralsTriTri[])
 {
   double totalQFA(0), totalTFA(0), totalDQQ(0), totalDQT(0), totalDTT(0);
-  for (int ii = 0; ii < nAngleBins; ii++) {
+  for (GMGW_int ii = 0; ii < nAngleBins; ii++) {
     totalQFA += quadFaceAngles[ii];
     totalTFA += triFaceAngles[ii];
     totalDQQ += dihedralsQuadQuad[ii];
@@ -57,7 +59,7 @@ outputAngleHistograms(FILE* angleFile, const int quadFaceAngles[],
   }
   fprintf(angleFile, "%12s %12s %12s %12s %12s %12s\n", "#Bin-mid", "quad face",
 	  "tri face", "q-q dihed", "q-t dihed", "t-t dihed");
-  for (int ii = 0; ii < nAngleBins; ii++) {
+  for (GMGW_int ii = 0; ii < nAngleBins; ii++) {
     fprintf(angleFile, "%10.0f %11.3f%% %11.3f%% %11.3f%% %11.3f%% %11.3f%%\n",
 	    0.5 * (angleBinBdrys[ii] + angleBinBdrys[ii + 1]),
 	    quadFaceAngles[ii] / totalQFA * 100,
@@ -69,16 +71,16 @@ outputAngleHistograms(FILE* angleFile, const int quadFaceAngles[],
 }
 
 void
-outputDistortionHistogram(FILE* distortFile, const int quadDistortion[])
+outputDistortionHistogram(FILE* distortFile, const GMGW_int quadDistortion[])
 {
-  double total;
-  for (int ii = 0; ii < nDistortBins; ii++) {
+  double total = 0;
+  for (GMGW_int ii = 0; ii < nDistortBins; ii++) {
     total += quadDistortion[ii];
   }
   fprintf(distortFile, "%12s %12s\n", "#Bin-val", "distort");
-  for (int ii = 0; ii < nDistortBins; ii++) {
+  for (GMGW_int ii = 0; ii < nDistortBins; ii++) {
     fprintf(distortFile, "<%d %11.3f%%\n", ii - nDistortBins + 1,
-      quadDistortion[ii] / total * 100);
+	    quadDistortion[ii] / total * 100);
   }
 }
 
@@ -91,7 +93,7 @@ distance(const double a[3], const double b[3])
 }
 
 void
-findClosestPoint(const int nConn, const unsigned int connect[], bool onBdry[],
+findClosestPoint(const GMGW_int nConn, const GMGW_int connect[], bool onBdry[],
 		 const double coords[][3], double minDist[])
 {
   // First, filter out points on the symmetry plane and on the far field,
@@ -100,7 +102,7 @@ findClosestPoint(const int nConn, const unsigned int connect[], bool onBdry[],
   const double radius = 4000; // Outside this is considered farfield.
   const double symmetryCapture = 1.e-4; // y < this is considered on the symmetry plane.
 
-  for (int ii = 0; ii < nConn; ii++) {
+  for (GMGW_int ii = 0; ii < nConn; ii++) {
     const double* myCoords = coords[connect[ii]];
     if (myCoords[1] < symmetryCapture) {
       onBdry[ii] = false;
@@ -112,7 +114,7 @@ findClosestPoint(const int nConn, const unsigned int connect[], bool onBdry[],
   }
 
   bool allOnBdry = true;
-  for (int ii = 0; ii < nConn; ii++) {
+  for (GMGW_int ii = 0; ii < nConn; ii++) {
     if (!onBdry[ii]) {
       allOnBdry = false;
       break;
@@ -123,8 +125,8 @@ findClosestPoint(const int nConn, const unsigned int connect[], bool onBdry[],
     // Compute all distances between points; each point is assigned the
     // smallest dist.  This will (at least mostly) patch up intersections
     // of the geometry with a symmetry plane.
-    for (int ii = 0; ii < nConn - 1; ii++) {
-      for (int jj = ii + 1; jj < nConn; jj++) {
+    for (GMGW_int ii = 0; ii < nConn - 1; ii++) {
+      for (GMGW_int jj = ii + 1; jj < nConn; jj++) {
 	double dist = distance(coords[connect[ii]], coords[connect[jj]]);
 	minDist[ii] = MIN(minDist[ii], dist);
 	minDist[jj] = MIN(minDist[jj], dist);
@@ -133,10 +135,10 @@ findClosestPoint(const int nConn, const unsigned int connect[], bool onBdry[],
   }
   else {
     // In this case, only compute bdry-interior pair distances
-    for (int ii = 0; ii < nConn; ii++) {
+    for (GMGW_int ii = 0; ii < nConn; ii++) {
       if (!onBdry[ii])
 	continue;
-      for (int jj = 0; jj < nConn; jj++) {
+      for (GMGW_int jj = 0; jj < nConn; jj++) {
 	if (onBdry[jj] || (jj == ii))
 	  continue;
 	double dist = distance(coords[connect[ii]], coords[connect[jj]]);
@@ -147,11 +149,11 @@ findClosestPoint(const int nConn, const unsigned int connect[], bool onBdry[],
 }
 
 static void
-addToBins(const double data, const int nBins, const double binBdrys[],
-	  int binCounts[])
+addToBins(const double data, const GMGW_int nBins, const double binBdrys[],
+	  GMGW_int binCounts[])
 {
   assert(data >= binBdrys[0] && data <= binBdrys[nBins]);
-  for (int ii = 0; ii < nBins; ii++) {
+  for (GMGW_int ii = 0; ii < nBins; ii++) {
     if (data < binBdrys[ii + 1]) {
       binCounts[ii]++;
       break;
@@ -160,7 +162,8 @@ addToBins(const double data, const int nBins, const double binBdrys[],
 }
 
 static double
-angleBetweenVecs(const double vecA[3], const double vecB[3], const int sign = 1)
+angleBetweenVecs(const double vecA[3], const double vecB[3],
+		 const GMGW_int sign = 1)
 {
   double cosine = sign * DOT(vecA, vecB);
   double cross[] = CROSS(vecA, vecB);
@@ -171,8 +174,8 @@ angleBetweenVecs(const double vecA[3], const double vecB[3], const int sign = 1)
 }
 
 static double
-triArea(const double coords[][3], const unsigned int v0, const unsigned int v1,
-	const unsigned int v2)
+triArea(const double coords[][3], const GMGW_int v0, const GMGW_int v1,
+	const GMGW_int v2)
 {
   double e0 = distance(coords[v0], coords[v1]);
   double e1 = distance(coords[v1], coords[v2]);
@@ -201,8 +204,8 @@ triArea(const double coords[][3], const unsigned int v0, const unsigned int v1,
 }
 
 void
-findOnWallSpacing(const double coords[][3], const int nConn,
-		  const unsigned int connect[], const int newIndex[],
+findOnWallSpacing(const double coords[][3], const GMGW_int nConn,
+		  const GMGW_int connect[], const GMGW_int newIndex[],
 		  double skinSpacing[])
 {
   bool onBdry[] =
@@ -210,9 +213,9 @@ findOnWallSpacing(const double coords[][3], const int nConn,
   double minDist[] =
     { 1e100, 1e100, 1e100, 1e100 };
   findClosestPoint(nConn, connect, onBdry, coords, minDist);
-  for (int ii = 0; ii < nConn; ii++) {
-    int oldIdx = connect[ii];
-    int newIdx = newIndex[oldIdx];
+  for (GMGW_int ii = 0; ii < nConn; ii++) {
+    GMGW_int oldIdx = connect[ii];
+    GMGW_int newIdx = newIndex[oldIdx];
     if ((minDist[ii] < 1e99) && (newIdx >= 0)) {
       skinSpacing[newIdx] =
 	  (minDist[ii] < skinSpacing[newIdx]) ?
@@ -224,12 +227,12 @@ findOnWallSpacing(const double coords[][3], const int nConn,
 
 void
 findOffWallSpacing(const FileWrapper* wrapper, const double coords[][3],
-		   const int nConn, const unsigned int connect[],
-		   const int newIndex[], double volSpacing[])
+		   const GMGW_int nConn, const GMGW_int connect[],
+		   const GMGW_int newIndex[], double volSpacing[])
 {
   // Which verts are on the bdry?
   bool onBdry[8], anyOnBdry = false;
-  for (int ii = 0; ii < nConn; ii++) {
+  for (GMGW_int ii = 0; ii < nConn; ii++) {
     // Is this a bdry vert?
     if (wrapper->isBdryVert(connect[ii])) {
       onBdry[ii] = true;
@@ -243,9 +246,9 @@ findOffWallSpacing(const FileWrapper* wrapper, const double coords[][3],
     double minDist[] =
       { 1e100, 1e100, 1e100, 1e100, 1e100, 1e100, 1e100, 1e100 };
     findClosestPoint(nConn, connect, onBdry, coords, minDist);
-    for (int ii = 0; ii < nConn; ii++) {
-      int oldIdx = connect[ii];
-      int newIdx = newIndex[oldIdx];
+    for (GMGW_int ii = 0; ii < nConn; ii++) {
+      GMGW_int oldIdx = connect[ii];
+      GMGW_int newIdx = newIndex[oldIdx];
       if ((minDist[ii] < 1e99) && (newIdx >= 0)) {
 	volSpacing[newIdx] =
 	    (minDist[ii] < volSpacing[newIdx]) ?
@@ -256,31 +259,34 @@ findOffWallSpacing(const FileWrapper* wrapper, const double coords[][3],
 }
 
 static void
-analyzeTri(const double coords[][3], const unsigned int v0,
-	   const unsigned int v1, const unsigned int v2, double angles[],
-	   double normal[])
+analyzeTri(const double coords[][3], const GMGW_int v0, const GMGW_int v1,
+	   const GMGW_int v2, double angles[], double normal[])
 {
   double vec01[] = SUB(coords[v0], coords[v1]);
   double vec12[] = SUB(coords[v1], coords[v2]);
-  double vec20[] = SUB(coords[v2], coords[v0]);
+  double vec20[] = SUB(coords[v2],
+      coords[v0]);
   angles[0] = angleBetweenVecs(vec01, vec12, -1);
   angles[1] = angleBetweenVecs(vec12, vec20, -1);
   angles[2] = angleBetweenVecs(vec20, vec01, -1);
-  double junk[] = CROSS(vec01, vec12);
+  double junk[] = CROSS(
+      vec01, vec12);
   normal[0] = -junk[0];
   normal[1] = -junk[1];
   normal[2] = -junk[2];
 }
 
 static void
-analyzeQuad(const double coords[][3], const unsigned int v0,
-	    const unsigned int v1, const unsigned int v2, const unsigned int v3,
-	    double angles[], double normal[])
+analyzeQuad(const double coords[][3], const GMGW_int v0, const GMGW_int v1,
+	    const GMGW_int v2, const GMGW_int v3, double angles[],
+	    double normal[])
 {
   double vec01[] = SUB(coords[v0], coords[v1]);
   double vec12[] = SUB(coords[v1], coords[v2]);
-  double vec23[] = SUB(coords[v2], coords[v3]);
-  double vec30[] = SUB(coords[v3], coords[v0]);
+  double vec23[] = SUB(coords[v2],
+      coords[v3]);
+  double vec30[] = SUB(
+      coords[v3], coords[v0]);
   angles[0] = angleBetweenVecs(vec01, vec12, -1);
   angles[1] = angleBetweenVecs(vec12, vec23, -1);
   angles[2] = angleBetweenVecs(vec23, vec30, -1);
@@ -314,27 +320,25 @@ tetVolume(const double coordsA[3], const double coordsB[3],
 }
 
 static double
-tetVolume(const double allCoords[][3], const unsigned int vertA,
-	  const unsigned int vertB, const unsigned int vertC,
-	  const unsigned int vertD)
+tetVolume(const double allCoords[][3], const GMGW_int vertA,
+	  const GMGW_int vertB, const GMGW_int vertC, const GMGW_int vertD)
 {
   return tetVolume(allCoords[vertA], allCoords[vertB], allCoords[vertC],
 		   allCoords[vertD]);
 }
 
 static double
-tetVolume(const double allCoords[][3], const unsigned int vertA,
-	  const unsigned int vertB, const unsigned int vertC,
-	  const double coordsD[])
+tetVolume(const double allCoords[][3], const GMGW_int vertA,
+	  const GMGW_int vertB, const GMGW_int vertC, const double coordsD[])
 {
   return tetVolume(allCoords[vertA], allCoords[vertB], allCoords[vertC],
 		   coordsD);
 }
 
 static double
-pyrVolume(const double allCoords[][3], const unsigned int vert0,
-	  const unsigned int vert1, const unsigned int vert2,
-	  const unsigned int vert3, const double coords4[])
+pyrVolume(const double allCoords[][3], const GMGW_int vert0,
+	  const GMGW_int vert1, const GMGW_int vert2, const GMGW_int vert3,
+	  const double coords4[])
 {
   // As per VTK file format, verts 0-3 are the base of the pyramid, in
   // right-handed cyclic order.
@@ -374,18 +378,17 @@ pyrVolume(const double allCoords[][3], const unsigned int vert0,
 }
 
 static double
-pyrVolume(const double allCoords[][3], const unsigned int vertA,
-	  const unsigned int vertB, const unsigned int vertC,
-	  const unsigned int vertD, const unsigned int vertE)
+pyrVolume(const double allCoords[][3], const GMGW_int vertA,
+	  const GMGW_int vertB, const GMGW_int vertC, const GMGW_int vertD,
+	  const GMGW_int vertE)
 {
   return pyrVolume(allCoords, vertA, vertB, vertC, vertD, allCoords[vertE]);
 }
 
 static double
-prismVolume(const double allCoords[][3], const unsigned int vertA,
-	    const unsigned int vertB, const unsigned int vertC,
-	    const unsigned int vertD, const unsigned int vertE,
-	    const unsigned int vertF)
+prismVolume(const double allCoords[][3], const GMGW_int vertA,
+	    const GMGW_int vertB, const GMGW_int vertC, const GMGW_int vertD,
+	    const GMGW_int vertE, const GMGW_int vertF)
 {
   static const double sixth = 1. / 6.;
   double result = 0;
@@ -404,11 +407,13 @@ prismVolume(const double allCoords[][3], const unsigned int vertA,
   double centroid[] =
     { (allCoords[vertA][0] + allCoords[vertB][0] + allCoords[vertC][0]
 	+ allCoords[vertD][0] + allCoords[vertE][0] + allCoords[vertF][0])
-	* sixth, (allCoords[vertA][1] + allCoords[vertB][1]
-	+ allCoords[vertC][1] + allCoords[vertD][1] + allCoords[vertE][1]
-	+ allCoords[vertF][1]) * sixth, (allCoords[vertA][2]
-	+ allCoords[vertB][2] + allCoords[vertC][2] + allCoords[vertD][2]
-	+ allCoords[vertE][2] + allCoords[vertF][2]) * sixth };
+	* sixth,
+
+    (allCoords[vertA][1] + allCoords[vertB][1] + allCoords[vertC][1]
+	+ allCoords[vertD][1] + allCoords[vertE][1] + allCoords[vertF][1])
+	* sixth, (allCoords[vertA][2] + allCoords[vertB][2]
+	+ allCoords[vertC][2] + allCoords[vertD][2] + allCoords[vertE][2]
+	+ allCoords[vertF][2]) * sixth };
 
   // First quad face: BADE
   result += pyrVolume(allCoords, vertB, vertA, vertD, vertE, centroid);
@@ -424,11 +429,10 @@ prismVolume(const double allCoords[][3], const unsigned int vertA,
 }
 
 static double
-hexVolume(const double allCoords[][3], const unsigned int vertA,
-	  const unsigned int vertB, const unsigned int vertC,
-	  const unsigned int vertD, const unsigned int vertE,
-	  const unsigned int vertF, const unsigned int vertG,
-	  const unsigned int vertH)
+hexVolume(const double allCoords[][3], const GMGW_int vertA,
+	  const GMGW_int vertB, const GMGW_int vertC, const GMGW_int vertD,
+	  const GMGW_int vertE, const GMGW_int vertF, const GMGW_int vertG,
+	  const GMGW_int vertH)
 {
   double result = 0;
   // Verts ABCD form a ring at the bottom, and verts EFGH form a ring at
@@ -465,8 +469,8 @@ hexVolume(const double allCoords[][3], const unsigned int vertA,
 }
 
 double
-cellVolume(const double coords[][3], const int nConn,
-	   const unsigned int connect[], const double sign)
+cellVolume(const double coords[][3], const GMGW_int nConn,
+	   const GMGW_int connect[])
 {
   double thisVol = -1;
 // Volume checks
@@ -497,19 +501,18 @@ cellVolume(const double coords[][3], const int nConn,
       assert(0);
       break;
     }
-  thisVol *= sign;
   return thisVol;
 }
 
 static void
-findQuadNonPlanarity(const double coords[][3], const unsigned int v0,
-		     const unsigned int v1, const unsigned int v2,
-		     const unsigned int v3, int quadDistortion[])
+findQuadNonPlanarity(const double coords[][3], const GMGW_int v0,
+		     const GMGW_int v1, const GMGW_int v2, const GMGW_int v3,
+		     GMGW_int quadDistortion[])
 {
   static constexpr double scaling = 2 * M_SQRT2 * pow(3., 1.75); // about 20
 
-  // It would be really nice not to have to go through all this;
-  // importing the calcs for this quality measure might be easier...
+// It would be really nice not to have to go through all this;
+// importing the calcs for this quality measure might be easier...
   double vol = fabs(tetVolume(coords, v0, v1, v2, v3));
   double area013 = triArea(coords, v0, v1, v3);
   double area123 = triArea(coords, v1, v2, v3);
@@ -523,8 +526,8 @@ findQuadNonPlanarity(const double coords[][3], const unsigned int v0,
 }
 
 static void
-analyzeTetQuality(const double coords[][3], const unsigned int connect[],
-		  int triFaceAngles[], int dihedralsTriTri[])
+analyzeTetQuality(const double coords[][3], const GMGW_int connect[],
+		  GMGW_int triFaceAngles[], GMGW_int dihedralsTriTri[])
 {
   double angles[12];
   double norm012[3], norm031[3], norm132[3], norm230[3];
@@ -533,7 +536,7 @@ analyzeTetQuality(const double coords[][3], const unsigned int connect[],
   analyzeTri(coords, connect[1], connect[3], connect[2], angles + 6, norm132);
   analyzeTri(coords, connect[2], connect[3], connect[0], angles + 9, norm230);
 
-  for (int ii = 0; ii < 12; ii++) {
+  for (GMGW_int ii = 0; ii < 12; ii++) {
     addToBins(angles[ii], nAngleBins, angleBinBdrys, triFaceAngles);
   }
 
@@ -543,24 +546,24 @@ analyzeTetQuality(const double coords[][3], const unsigned int connect[],
   angles[3] = angleBetweenVecs(norm031, norm132, -1);
   angles[4] = angleBetweenVecs(norm031, norm230, -1);
   angles[5] = angleBetweenVecs(norm132, norm230, -1);
-  for (int ii = 0; ii < 6; ii++) {
+  for (GMGW_int ii = 0; ii < 6; ii++) {
     addToBins(angles[ii], nAngleBins, angleBinBdrys, dihedralsTriTri);
   }
 }
 
 static void
-analyzePyrQuality(const double coords[][3], const unsigned int connect[],
-		  int triFaceAngles[], int quadFaceAngles[],
-		  int quadDistortion[], int dihedralsQuadTri[],
-		  int dihedralsTriTri[])
+analyzePyrQuality(const double coords[][3], const GMGW_int connect[],
+		  GMGW_int triFaceAngles[], GMGW_int quadFaceAngles[],
+		  GMGW_int quadDistortion[], GMGW_int dihedralsQuadTri[],
+		  GMGW_int dihedralsTriTri[])
 {
   // Verts 0-3 are the base of the pyramid, in RH cyclic order, and vert 4 is
   // the apex.
-  const unsigned int& v0 = connect[0];
-  const unsigned int& v1 = connect[1];
-  const unsigned int& v2 = connect[2];
-  const unsigned int& v3 = connect[3];
-  const unsigned int& v4 = connect[4];
+  const GMGW_int& v0 = connect[0];
+  const GMGW_int& v1 = connect[1];
+  const GMGW_int& v2 = connect[2];
+  const GMGW_int& v3 = connect[3];
+  const GMGW_int& v4 = connect[4];
 
   // There are sixteen face angles here.
   double angles[16];
@@ -572,10 +575,10 @@ analyzePyrQuality(const double coords[][3], const unsigned int connect[],
   analyzeTri(coords, v0, v3, v4, angles + 9, norm304);
   analyzeQuad(coords, v0, v1, v2, v3, angles + 12, norm0123);
 
-  for (int ii = 0; ii < 12; ii++) {
+  for (GMGW_int ii = 0; ii < 12; ii++) {
     addToBins(angles[ii], nAngleBins, angleBinBdrys, triFaceAngles);
   }
-  for (int ii = 12; ii < 16; ii++) {
+  for (GMGW_int ii = 12; ii < 16; ii++) {
     addToBins(angles[ii], nAngleBins, angleBinBdrys, quadFaceAngles);
   }
   findQuadNonPlanarity(coords, v0, v1, v2, v3, quadDistortion);
@@ -589,28 +592,28 @@ analyzePyrQuality(const double coords[][3], const unsigned int connect[],
   angles[5] = angleBetweenVecs(norm124, norm0123, -1);
   angles[6] = angleBetweenVecs(norm234, norm0123, -1);
   angles[7] = angleBetweenVecs(norm304, norm0123, -1);
-  for (int ii = 0; ii < 4; ii++) {
+  for (GMGW_int ii = 0; ii < 4; ii++) {
     addToBins(angles[ii], nAngleBins, angleBinBdrys, dihedralsTriTri);
   }
-  for (int ii = 5; ii < 8; ii++) {
+  for (GMGW_int ii = 5; ii < 8; ii++) {
     addToBins(angles[ii], nAngleBins, angleBinBdrys, dihedralsQuadTri);
   }
 }
 
 static void
-analyzePrismQuality(const double coords[][3], const unsigned int connect[],
-		    int triFaceAngles[], int quadFaceAngles[],
-		    int quadDistortion[], int dihedralsQuadQuad[],
-		    int dihedralsQuadTri[])
+analyzePrismQuality(const double coords[][3], const GMGW_int connect[],
+		    GMGW_int triFaceAngles[], GMGW_int quadFaceAngles[],
+		    GMGW_int quadDistortion[], GMGW_int dihedralsQuadQuad[],
+		    GMGW_int dihedralsQuadTri[])
 {
   // Verts 0-3 are the base of the pyramid, in RH cyclic order, and vert 4 is
   // the apex.
-  const unsigned int& vertA = connect[0];
-  const unsigned int& vertB = connect[1];
-  const unsigned int& vertC = connect[2];
-  const unsigned int& vertD = connect[3];
-  const unsigned int& vertE = connect[4];
-  const unsigned int& vertF = connect[5];
+  const GMGW_int& vertA = connect[0];
+  const GMGW_int& vertB = connect[1];
+  const GMGW_int& vertC = connect[2];
+  const GMGW_int& vertD = connect[3];
+  const GMGW_int& vertE = connect[4];
+  const GMGW_int& vertF = connect[5];
 
   // There are eighteen face angles here.
   double angles[18];
@@ -622,10 +625,10 @@ analyzePrismQuality(const double coords[][3], const unsigned int connect[],
   analyzeQuad(coords, vertC, vertB, vertE, vertF, angles + 10, normCBEF);
   analyzeQuad(coords, vertA, vertC, vertF, vertD, angles + 14, normACFD);
 
-  for (int ii = 0; ii < 6; ii++) {
+  for (GMGW_int ii = 0; ii < 6; ii++) {
     addToBins(angles[ii], nAngleBins, angleBinBdrys, triFaceAngles);
   }
-  for (int ii = 7; ii < 18; ii++) {
+  for (GMGW_int ii = 7; ii < 18; ii++) {
     addToBins(angles[ii], nAngleBins, angleBinBdrys, quadFaceAngles);
   }
 
@@ -643,29 +646,29 @@ analyzePrismQuality(const double coords[][3], const unsigned int connect[],
   angles[6] = angleBetweenVecs(normACFD, normBADE, -1);
   angles[7] = angleBetweenVecs(normBADE, normCBEF, -1);
   angles[8] = angleBetweenVecs(normCBEF, normACFD, -1);
-  for (int ii = 0; ii < 6; ii++) {
+  for (GMGW_int ii = 0; ii < 6; ii++) {
     addToBins(angles[ii], nAngleBins, angleBinBdrys, dihedralsQuadTri);
   }
-  for (int ii = 7; ii < 9; ii++) {
+  for (GMGW_int ii = 7; ii < 9; ii++) {
     addToBins(angles[ii], nAngleBins, angleBinBdrys, dihedralsQuadQuad);
   }
 }
 
 static void
-analyzeHexQuality(const double coords[][3], const unsigned int connect[],
-		  int quadFaceAngles[], int quadDistortion[],
-		  int dihedralsQuadQuad[])
+analyzeHexQuality(const double coords[][3], const GMGW_int connect[],
+		  GMGW_int quadFaceAngles[], GMGW_int quadDistortion[],
+		  GMGW_int dihedralsQuadQuad[])
 {
   // Verts 0-3 are the base of the pyramid, in RH cyclic order, and vert 4 is
   // the apex.
-  const unsigned int& vertA = connect[0];
-  const unsigned int& vertB = connect[1];
-  const unsigned int& vertC = connect[2];
-  const unsigned int& vertD = connect[3];
-  const unsigned int& vertE = connect[4];
-  const unsigned int& vertF = connect[5];
-  const unsigned int& vertG = connect[6];
-  const unsigned int& vertH = connect[7];
+  const GMGW_int& vertA = connect[0];
+  const GMGW_int& vertB = connect[1];
+  const GMGW_int& vertC = connect[2];
+  const GMGW_int& vertD = connect[3];
+  const GMGW_int& vertE = connect[4];
+  const GMGW_int& vertF = connect[5];
+  const GMGW_int& vertG = connect[6];
+  const GMGW_int& vertH = connect[7];
 
   // There are twenty-four face angles here.
   double angles[24];
@@ -679,7 +682,7 @@ analyzeHexQuality(const double coords[][3], const unsigned int connect[],
   analyzeQuad(coords, vertD, vertC, vertG, vertH, angles + 16, normDCGH);
   analyzeQuad(coords, vertA, vertD, vertH, vertE, angles + 20, normADHE);
 
-  for (int ii = 0; ii < 24; ii++) {
+  for (GMGW_int ii = 0; ii < 24; ii++) {
     addToBins(angles[ii], nAngleBins, angleBinBdrys, quadFaceAngles);
   }
 
@@ -703,17 +706,17 @@ analyzeHexQuality(const double coords[][3], const unsigned int connect[],
   angles[9] = angleBetweenVecs(normCBFG, normDCGH, -1);
   angles[10] = angleBetweenVecs(normDCGH, normADHE, -1);
   angles[11] = angleBetweenVecs(normADHE, normBAEF, -1);
-  for (int ii = 0; ii < 12; ii++) {
+  for (GMGW_int ii = 0; ii < 12; ii++) {
     addToBins(angles[ii], nAngleBins, angleBinBdrys, dihedralsQuadQuad);
   }
 }
 
 void
-analyzeCellQuality(const double coords[][3], const int nConn,
-		   const unsigned int connect[], int triFaceAngles[],
-		   int quadFaceAngles[], int quadDistortion[],
-		   int dihedralsQuadQuad[], int dihedralsQuadTri[],
-		   int dihedralsTriTri[])
+analyzeCellQuality(const double coords[][3], const GMGW_int nConn,
+		   const GMGW_int connect[], GMGW_int triFaceAngles[],
+		   GMGW_int quadFaceAngles[], GMGW_int quadDistortion[],
+		   GMGW_int dihedralsQuadQuad[], GMGW_int dihedralsQuadTri[],
+		   GMGW_int dihedralsTriTri[])
 {
   // For all faces, find their faces angle and bin the results.
   // For quad faces, find their non-planarity; bin the result.
@@ -737,32 +740,32 @@ analyzeCellQuality(const double coords[][3], const int nConn,
       break;
     default:
       assert(0);
-      break;
-    }
+break;
+}
 }
 
 void
-analyzeBdryFace(const double coords[][3], const int nConn,
-		const unsigned int connect[], int triFaceAngles[],
-		int quadFaceAngles[], int quadDistortion[])
+analyzeBdryFace(const double coords[][3], const GMGW_int nConn,
+		const GMGW_int connect[], GMGW_int triFaceAngles[],
+GMGW_int quadFaceAngles[], GMGW_int quadDistortion[])
 {
-  double normal[3], angles[4];
-  assert(nConn == 3 || nConn == 4);
-  if (nConn == 3) {
-    analyzeTri(coords, connect[0], connect[1], connect[2], angles, normal);
-    addToBins(angles[0], nAngleBins, angleBinBdrys, triFaceAngles);
-    addToBins(angles[1], nAngleBins, angleBinBdrys, triFaceAngles);
-    addToBins(angles[2], nAngleBins, angleBinBdrys, triFaceAngles);
-  }
-  else {
-    analyzeQuad(coords, connect[0], connect[1], connect[2], connect[3], angles,
+double normal[3], angles[4];
+assert(nConn == 3 || nConn == 4);
+if (nConn == 3) {
+analyzeTri(coords, connect[0], connect[1], connect[2], angles, normal);
+addToBins(angles[0], nAngleBins, angleBinBdrys, triFaceAngles);
+addToBins(angles[1], nAngleBins, angleBinBdrys, triFaceAngles);
+addToBins(angles[2], nAngleBins, angleBinBdrys, triFaceAngles);
+}
+else {
+analyzeQuad(coords, connect[0], connect[1], connect[2], connect[3], angles,
 		normal);
-    addToBins(angles[0], nAngleBins, angleBinBdrys, quadFaceAngles);
-    addToBins(angles[1], nAngleBins, angleBinBdrys, quadFaceAngles);
-    addToBins(angles[2], nAngleBins, angleBinBdrys, quadFaceAngles);
-    addToBins(angles[3], nAngleBins, angleBinBdrys, quadFaceAngles);
-    findQuadNonPlanarity(coords, connect[0], connect[1], connect[2], connect[3],
+addToBins(angles[0], nAngleBins, angleBinBdrys, quadFaceAngles);
+addToBins(angles[1], nAngleBins, angleBinBdrys, quadFaceAngles);
+addToBins(angles[2], nAngleBins, angleBinBdrys, quadFaceAngles);
+addToBins(angles[3], nAngleBins, angleBinBdrys, quadFaceAngles);
+findQuadNonPlanarity(coords, connect[0], connect[1], connect[2], connect[3],
 			 quadDistortion);
-  }
+}
 }
 

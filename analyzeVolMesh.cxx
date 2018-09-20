@@ -6,29 +6,35 @@
  */
 
 /*
-    Copyright (C) The University of British Columbia, 2018.
+ Copyright (C) The University of British Columbia, 2018.
 
-    This file is part of UnstructuredMeshAnalyzer.
+ This file is part of UnstructuredMeshAnalyzer.
 
-    UnstructuredMeshAnalyzer is free software: you can redistribute it
-    and/or modify it under the terms of the GNU General Public License
-    as published by the Free Software Foundation, either version 3 of
-    the License, or (at your option) any later version.
+ UnstructuredMeshAnalyzer is free software: you can redistribute it
+ and/or modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation, either version 3 of
+ the License, or (at your option) any later version.
 
-    UnstructuredMeshAnalyzer is distributed in the hope that it will be
-    useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    General Public License for more details.
+ UnstructuredMeshAnalyzer is distributed in the hope that it will be
+ useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with UnstructuredMeshAnalyzer.  If not, see
-    <https://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with UnstructuredMeshAnalyzer.  If not, see
+ <https://www.gnu.org/licenses/>.
+ */
 
 #include <algorithm>
 #include <cmath>
 #include <string>
 #include <vector>
+
+#include <iostream>
+#include <iomanip>
+
+using std::cout;
+using std::endl;
 
 #include <assert.h>
 #include <stdlib.h>
@@ -40,9 +46,8 @@
 #include "GMGW_FileWrapper.hxx"
 
 void
-outputSizeRatios(FileWrapper* wrapper, const unsigned int validTris,
-		 const unsigned int validQuads,
-		 const unsigned int faceToCell[][2],
+outputSizeRatios(FileWrapper* wrapper, const GMGW_int validTris,
+		 const GMGW_int validQuads, const GMGW_int faceToCell[][2],
 		 const char sizeRatioFileName[], double* allVolumes)
 {
   // Now let's tabulate volume ratios for histograms
@@ -52,7 +57,7 @@ outputSizeRatios(FileWrapper* wrapper, const unsigned int validTris,
   double pyrPyrViaQuadRatio[50], pyrPrismViaQuadRatio[50],
       prismPrismViaQuadRatio[50];
   double pyrHexRatio[50], prismHexRatio[50], hexHexRatio[50];
-  for (int ii = 0; ii < 50; ii++) {
+  for (GMGW_int ii = 0; ii < 50; ii++) {
     tetTetRatio[ii] = 0;
     tetPyrRatio[ii] = 0;
     tetPrismRatio[ii] = 0;
@@ -66,21 +71,21 @@ outputSizeRatios(FileWrapper* wrapper, const unsigned int validTris,
     prismHexRatio[ii] = 0;
     hexHexRatio[ii] = 0;
   }
-  unsigned int tetTetCount = 0, tetPyrCount = 0, tetPrismCount = 0;
-  unsigned int pyrPyrViaTriCount = 0, pyrPrismViaTriCount = 0,
+  GMGW_int tetTetCount = 0, tetPyrCount = 0, tetPrismCount = 0;
+  GMGW_int pyrPyrViaTriCount = 0, pyrPrismViaTriCount = 0,
       prismPrismViaTriCount = 0;
-  unsigned int pyrPyrViaQuadCount = 0, pyrPrismViaQuadCount = 0,
+  GMGW_int pyrPyrViaQuadCount = 0, pyrPrismViaQuadCount = 0,
       prismPrismViaQuadCount = 0;
-  unsigned int pyrHexCount = 0, prismHexCount = 0, hexHexCount = 0;
-  for (unsigned int ui = 0; ui < validTris; ui++) {
-    unsigned int cellA = faceToCell[ui][0];
-    unsigned int cellB = faceToCell[ui][1];
+  GMGW_int pyrHexCount = 0, prismHexCount = 0, hexHexCount = 0;
+  for (GMGW_int ui = 0; ui < validTris; ui++) {
+    GMGW_int cellA = faceToCell[ui][0];
+    GMGW_int cellB = faceToCell[ui][1];
     double sizeA = allVolumes[cellA];
     double sizeB = allVolumes[cellB];
     if (sizeA <= 0 || sizeB <= 0)
       continue;
     double ratio = std::min(sizeA / sizeB, sizeB / sizeA);
-    int bin = floor(ratio * 50);
+    GMGW_int bin = floor(ratio * 50);
 
     char typeA = wrapper->getCellType(cellA);
     char typeB = wrapper->getCellType(cellB);
@@ -114,15 +119,15 @@ outputSizeRatios(FileWrapper* wrapper, const unsigned int validTris,
     }
   }
   // Now for the quads
-  for (unsigned int ui = validTris; ui < validTris + validQuads; ui++) {
-    unsigned int cellA = faceToCell[ui][0];
-    unsigned int cellB = faceToCell[ui][1];
+  for (GMGW_int ui = validTris; ui < validTris + validQuads; ui++) {
+    GMGW_int cellA = faceToCell[ui][0];
+    GMGW_int cellB = faceToCell[ui][1];
     double sizeA = allVolumes[cellA];
     double sizeB = allVolumes[cellB];
     if (sizeA <= 0 || sizeB <= 0)
       continue;
     double ratio = std::min(sizeA / sizeB, sizeB / sizeA);
-    int bin = floor(ratio * 50);
+    GMGW_int bin = floor(ratio * 50);
 
     char typeA = wrapper->getCellType(cellA);
     char typeB = wrapper->getCellType(cellB);
@@ -160,7 +165,7 @@ outputSizeRatios(FileWrapper* wrapper, const unsigned int validTris,
   fprintf(
       sizeRatios,
       "# Bin val  tet-tet tet-pyr tet-prism pyr-pyr(t) pyr-prism(t) prism-prism(t) pyr-pyr(q) pyr-prism(q) prism-prism(q) pyr-hex prism-hex hex-hex\n");
-  for (int ii = 0; ii < 50; ii++) {
+  for (GMGW_int ii = 0; ii < 50; ii++) {
     fprintf(
 	sizeRatios,
 	"%4f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f\n",
@@ -190,52 +195,50 @@ outputSizeRatios(FileWrapper* wrapper, const unsigned int validTris,
   fclose(sizeRatios);
 }
 
-
-
 void
-printDataStats(const double ignoreValue, unsigned int dataSize, double* data,
+printDataStats(const double ignoreValue, GMGW_int dataSize, double* data,
 	       const char prefix[])
 {
   std::sort(data, data + dataSize);
-  int ignoreCount = 0;
+  GMGW_int ignoreCount = 0;
   while (data[ignoreCount] <= ignoreValue) {
     ignoreCount++;
   }
-  int nActualVals = dataSize - ignoreCount;
-  int minIndex = ignoreCount;
-  int fivePercentileIndex = ignoreCount + (nActualVals * 5) / 100;
-  int medianIndex = ignoreCount + nActualVals / 2;
-  int ninetyfivePercentileIndex = ignoreCount + (nActualVals * 95) / 100;
-  int maxIndex = dataSize - 1;
-  printf("%s stats: \n", prefix);
-  printf("   min: %12E\n", data[minIndex]);
-  printf("    5%%: %12E\n", data[fivePercentileIndex]);
-  printf("   50%%: %12E\n", data[medianIndex]);
-  printf("   95%%: %12E\n", data[ninetyfivePercentileIndex]);
-  printf("   max: %12E\n", data[maxIndex]);
-  fflush (stdout);
+  GMGW_int nActualVals = dataSize - ignoreCount;
+  GMGW_int minIndex = ignoreCount;
+  GMGW_int fivePercentileIndex = ignoreCount + (nActualVals * 5) / 100;
+  GMGW_int medianIndex = ignoreCount + nActualVals / 2;
+  GMGW_int ninetyfivePercentileIndex = ignoreCount + (nActualVals * 95) / 100;
+  GMGW_int maxIndex = dataSize - 1;
+  cout << prefix << " stats:" << endl;
+  cout.precision(5);
+  cout << std::scientific;
+  cout << "    min: " << data[minIndex] << endl;
+  cout << "     5%: " << data[fivePercentileIndex] << endl;
+  cout << " median: " << data[medianIndex] << endl;
+  cout << "    95%: " << data[ninetyfivePercentileIndex] << endl;
+  cout << "    max: " << data[maxIndex] << endl;
 }
 
 void
-writeBdryFaceConnectivity(FILE* output, const int nConn,
-			  const unsigned int connect[], const int newIndex[])
+writeBdryFaceConnectivity(FILE* output, const GMGW_int nConn,
+			  const GMGW_int connect[], const GMGW_int newIndex[])
 {
-  fprintf(output, "%d ", nConn);
-  for (int ii = 0; ii < nConn; ii++) {
+  fprintf(output, "%" GMGW_int_format " ", nConn);
+  for (GMGW_int ii = 0; ii < nConn; ii++) {
     assert(newIndex[connect[ii]] >= 0);
-    fprintf(output, "%u ", newIndex[connect[ii]]);
+    fprintf(output, "%" GMGW_int_format " ", newIndex[connect[ii]]);
   }
   fprintf(output, "\n");
 }
-
 
 // Write out a new VTK file with only the surface mesh in it.
 bool
 writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
 		 const char sizeRatioFileName[], const char nmbFileName_arg[],
 		 const char angleFileName[], const char distortFileName[],
-		 const unsigned int faceToCell[][2],
-		 const unsigned int validTris, const unsigned int validQuads)
+		 const GMGW_int faceToCell[][2], const GMGW_int validTris,
+		 const GMGW_int validQuads)
 {
   // Open the output file
   FILE* output = fopen(outputFileName, "w");
@@ -250,19 +253,19 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
 
   // Write bdry vertex data
   wrapper->seekStartOfCoords();
-  unsigned int nBdryVerts = wrapper->getNumBdryVerts();
-  unsigned int nVerts = wrapper->getNumVerts();
+  GMGW_int nBdryVerts = wrapper->getNumBdryVerts();
+  GMGW_int nVerts = wrapper->getNumVerts();
   fprintf(output, "POINTS %u float\n", nBdryVerts);
-  int* newIndex = new int[nVerts];
+  GMGW_int* newIndex = new GMGW_int[nVerts];
 
   double (*coords)[3] = new double[nVerts][3];
   double (*bdryCoords)[3] = new double[nBdryVerts][3];
-  unsigned int iBV = 0;
+  GMGW_int iBV = 0;
 
-  printf("Reading verts... ");
-  fflush (stdout);
+  cout << "Reading verts... ";
+  cout.flush();
   double minY = 0;
-  for (unsigned int iV = 0; iV < nVerts; iV++) {
+  for (GMGW_int iV = 0; iV < nVerts; iV++) {
     // Read the coords anyway, because we have to move through the file.
     double x, y, z;
     wrapper->getNextVertexCoords(x, y, z);
@@ -284,87 +287,73 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
     coords[iV][2] = z;
 
     if ((iV + 1) % 2000000 == 0) {
-      printf("%dM ", (iV + 1) / 1000000);
-      fflush(stdout);
+      cout << (iV + 1) / 1000000 << "M ";
+      cout.flush();
     }
   }
-  printf("\n");
-  double sign = 1;
-  if (minY < -10) {
-    sign = -1; // Need to flip signs on all the volumes, too.
-    printf("Swapping y and z coords...\n");
-    fflush(stdout);
-    // Flip coords for meshes with y up and z out the wingtip.
-    for (unsigned int ii = 0; ii < nBdryVerts; ii++) {
-      double tmp = bdryCoords[ii][1];
-      bdryCoords[ii][1] = bdryCoords[ii][2];
-      bdryCoords[ii][2] = tmp;
-    }
+  cout << endl;
 
-    for (unsigned int ii = 0; ii < nVerts; ii++) {
-      std::swap(coords[ii][1], coords[ii][2]);
-    }
-  }
-  printf("Writing verts...");
-  for (unsigned int ii = 0; ii < nBdryVerts; ii++) {
+  cout << "Writing verts... ";
+  cout.flush();
+  for (GMGW_int ii = 0; ii < nBdryVerts; ii++) {
     double& x = bdryCoords[ii][0];
     double& y = bdryCoords[ii][1];
     double& z = bdryCoords[ii][2];
     fprintf(output, "%15.12f %15.12f %15.12f\n", x, y, z);
     if ((ii + 1) % 100000 == 0) {
-      printf("%dK ", (ii + 1) / 1000);
-      fflush(stdout);
+      cout << (ii + 1) / 1000 << "K ";
+      cout.flush();
     }
   }
-  printf("\n");
+  cout << endl;
 
   assert(iBV == nBdryVerts);
 
   // Write bdry face data (with connectivity indices updated!  Also,
   // accumulate info about nearest point off the surface.
-  printf("Transcribing cell data and finding boundary spacing...");
-  fflush(stdout);
-  int numNeg = 0;
+  cout << "Transcribing cell data and finding boundary spacing...";
+  cout.flush();
+  GMGW_int numNeg = 0;
 
   // Initially, set wall spacing to something ridiculous so that min will
   // always pick the edge length the first time it tries.
   double *volSpacing = new double[nBdryVerts];
   double *skinSpacing = new double[nBdryVerts];
-  for (unsigned int ii = 0; ii < nBdryVerts; ii++)
+  for (GMGW_int ii = 0; ii < nBdryVerts; ii++)
     skinSpacing[ii] = volSpacing[ii] = 1.e100;
 
   double totalVolume = 0;
 
   wrapper->seekStartOfConnectivity();
 
-  unsigned int nBdryTris = wrapper->getNumBdryTris();
-  unsigned int nBdryQuads = wrapper->getNumBdryQuads();
-  unsigned int nCells = wrapper->getNumCells();
+  GMGW_int nBdryTris = wrapper->getNumBdryTris();
+  GMGW_int nBdryQuads = wrapper->getNumBdryQuads();
+  GMGW_int nCells = wrapper->getNumCells();
 
   // A spot to store cell volumes for later volume ratio calculations
   double *allVolumes = new double[nCells];
   // Obviously bdry entities have zero volume.
 
-  int triFaceAngles[30], quadFaceAngles[30], quadDistortion[30];
-  int dihedralsQuadQuad[30], dihedralsQuadTri[30], dihedralsTriTri[30];
-  for (int ii = 0; ii < 30; ii++) {
+  GMGW_int triFaceAngles[30], quadFaceAngles[30], quadDistortion[30];
+  GMGW_int dihedralsQuadQuad[30], dihedralsQuadTri[30], dihedralsTriTri[30];
+  for (GMGW_int ii = 0; ii < 30; ii++) {
     triFaceAngles[ii] = quadFaceAngles[ii] = quadDistortion[ii] =
 	dihedralsQuadQuad[ii] = dihedralsQuadTri[ii] = dihedralsTriTri[ii] = 0;
   }
 
-  std::vector<unsigned int> badElementVertList;
-  std::vector<unsigned int> badElementConnect;
-  std::vector<unsigned int> badElementType;
-  unsigned int dummyVert = 0;
+  std::vector<GMGW_int> badElementVertList;
+  std::vector<GMGW_int> badElementConnect;
+  std::vector<GMGW_int> badElementType;
+  GMGW_int dummyVert = 0;
 
-  static const int VTKtype[] =
+  static const GMGW_int VTKtype[] =
     { 0, 0, 0, 0, TET, PYRAMID, PRISM, 0, HEX };
 
   fprintf(output, "CELLS %u %u\n", nBdryTris + nBdryQuads,
 	  4 * nBdryTris + 5 * nBdryQuads);
-  unsigned int connect[8];
-  for (unsigned int iC = 0; iC < nCells; iC++) {
-    int nConn;
+  GMGW_int connect[8];
+  for (GMGW_int iC = 0; iC < nCells; iC++) {
+    GMGW_int nConn;
     wrapper->getNextCellConnectivity(nConn, connect);
     // Write the connectivity only for bdry tris and quads
     if (wrapper->isBdryFace(iC)) {
@@ -379,20 +368,17 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
     }
     // Otherwise, check for the closest interior point for any bdry verts.
     else {
-      double thisVol = cellVolume(coords, nConn, connect, sign);
+      double thisVol = cellVolume(coords, nConn, connect);
       allVolumes[iC] = thisVol;
       if (thisVol < 0) {
 	numNeg++;
 	badElementConnect.push_back(nConn);
 	badElementType.push_back(VTKtype[nConn]);
-	for (int ii = 0; ii < nConn; ii++) {
+	for (GMGW_int ii = 0; ii < nConn; ii++) {
 	  badElementVertList.push_back(connect[ii]);
 	  badElementConnect.push_back(dummyVert++);
 	}
-//                printf("Negative volume!  Cell %u, type %d, vol %.10G\n",
-//                       iC, nConn, thisVol);
       }
-//            printf("Cell %u, type %d, vol %.10G\n", iC, nConn, thisVol);
       totalVolume += thisVol;
 
       findOffWallSpacing(wrapper, coords, nConn, connect, newIndex, volSpacing);
@@ -408,13 +394,14 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
 			 dihedralsTriTri);
     }
     if ((iC + 1) % 5000000 == 0) {
-      printf("%dM ", (iC + 1) / 1000000);
-      fflush(stdout);
+      cout << (iC + 1) / 1000000 << "M ";
+      cout.flush();
     }
   }
-  printf("\n");
-  printf("Total volume: %'.12G.  Number w/ negative volume: %d\n", totalVolume,
-	 numNeg);
+  cout << endl;
+
+  cout << "Total volume: " << totalVolume << ".  Number w/ negative volume: "
+      << numNeg << endl;
   delete[] newIndex;
 
   FILE* angleFile = fopen(angleFileName, "w");
@@ -435,17 +422,17 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
   //     fprintf(badElements, "DATASET UNSTRUCTURED_GRID\n");
 
   //     fprintf(badElements, "POINTS %lu float\n", badElementVertList.size());
-  //     for (unsigned int ii = 0; ii < badElementVertList.size(); ii++) {
-  //         unsigned int vert = badElementVertList[ii];
+//     for ( GMGW_int ii = 0; ii < badElementVertList.size(); ii++) {
+//          GMGW_int vert = badElementVertList[ii];
   //         fprintf(badElements, "%.12G %.12G %.12G\n",
   //                 coords[vert][0], coords[vert][1], coords[vert][2]);
   //     }
   //     fprintf(badElements, "CELLS %u %lu\n", numNeg, badElementConnect.size());
-  //     for (unsigned int ii = 0; ii < badElementConnect.size(); ii++) {
+//     for ( GMGW_int ii = 0; ii < badElementConnect.size(); ii++) {
   //         fprintf(badElements, "%u\n", badElementConnect[ii]);
   //     }
   //     fprintf(badElements, "CELL_TYPES %u\n", numNeg);
-  //     for (unsigned int ii = 0; ii < badElementType.size(); ii++) {
+//     for ( GMGW_int ii = 0; ii < badElementType.size(); ii++) {
   //         fprintf(badElements, "%u\n", badElementType[ii]);
   //     }
   //     fclose(badElements);
@@ -459,25 +446,23 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
   delete[] allVolumes;
   delete[] faceToCell;
 
-  printf("Writing cell types\n");
-  fflush(stdout);
+  cout << "Writing cell types" << endl;
   // Write cell types
   fprintf(output, "CELL_TYPES %u\n", nBdryTris + nBdryQuads);
 
-  for (unsigned int iC = 0; iC < nCells; iC++) {
+  for (GMGW_int iC = 0; iC < nCells; iC++) {
     if (wrapper->isBdryFace(iC)) {
       char type = wrapper->getCellType(iC);
       fprintf(output, "%d\n", type);
     }
   }
 
-  printf("Writing off-wall spacing\n");
-  fflush(stdout);
+  cout << "Writing off-wall spacing" << endl;
   // Write off-wall spacing as point data.
   fprintf(output, "POINT_DATA %u\n", nBdryVerts);
   fprintf(output, "SCALARS WallSpacing float\n");
   fprintf(output, "LOOKUP_TABLE default\n");
-  for (unsigned int iV = 0; iV < nBdryVerts; iV++) {
+  for (GMGW_int iV = 0; iV < nBdryVerts; iV++) {
     if (volSpacing[iV] > 1.E99)
       volSpacing[iV] = -1;
     fprintf(output, "%.6G\n", volSpacing[iV]);
@@ -485,12 +470,12 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
   printDataStats(-1, nBdryVerts, volSpacing, "Volume spacing");
   delete[] volSpacing;
 
-  printf("Writing on-wall spacing\n");
+  cout << "Writing on-wall spacing" << endl;
   fflush(stdout);
   // Write on-wall spacing as point data.
   fprintf(output, "SCALARS SkinSpacing float\n");
   fprintf(output, "LOOKUP_TABLE default\n");
-  for (unsigned int iV = 0; iV < nBdryVerts; iV++) {
+  for (GMGW_int iV = 0; iV < nBdryVerts; iV++) {
     if (skinSpacing[iV] > 1.E99)
       skinSpacing[iV] = 0;
     fprintf(output, "%.6G\n", skinSpacing[iV]);
@@ -499,21 +484,20 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
 
   if (nmbFilename != "NONE") {
     double* bdryDist = new double[nBdryVerts];
-    int* bdrySurf = new int[nBdryVerts];
-    for (unsigned int ii = 0; ii < nBdryVerts; ii++) {
+    GMGW_int* bdrySurf = new GMGW_int[nBdryVerts];
+    for (GMGW_int ii = 0; ii < nBdryVerts; ii++) {
       bdrySurf[ii] = -1;
     }
-    int retVal = projectionChecks(nBdryVerts, bdryCoords, bdryDist, bdrySurf,
-				  nmbFilename);
+    GMGW_int retVal = projectionChecks(nBdryVerts, bdryCoords, bdryDist,
+				       bdrySurf, nmbFilename);
     if (retVal == 0) {
       // The projection checks will fail if there's no GEODE kernel out
       // there to check against.
-      printf("Writing wall projection distances\n");
-      fflush(stdout);
+      cout << "Writing wall projection distances" << endl;
       // Write projection distance as point data.
       fprintf(output, "SCALARS ProjDistance float\n");
       fprintf(output, "LOOKUP_TABLE default\n");
-      for (unsigned int iV = 0; iV < nBdryVerts; iV++) {
+      for (GMGW_int iV = 0; iV < nBdryVerts; iV++) {
 	fprintf(output, "%.6G\n", bdryDist[iV]);
       }
       // Extract some stats (min, 5%-ile, median, 95%-ile, max) from
@@ -524,8 +508,8 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
       // Write surface projected to as point data.
       fprintf(output, "SCALARS ProjSurf integer\n");
       fprintf(output, "LOOKUP_TABLE default\n");
-      for (unsigned int iV = 0; iV < nBdryVerts; iV++) {
-	fprintf(output, "%d\n", bdrySurf[iV]);
+      for (GMGW_int iV = 0; iV < nBdryVerts; iV++) {
+	fprintf(output, "%" GMGW_int_format "\n", bdrySurf[iV]);
       }
 
       delete[] bdrySurf;
@@ -561,10 +545,10 @@ main(int argc, char * const argv[])
     usage();
     exit(1);
   }
-  if (sizeof(long) == 4) {
+  if (sizeof(GMGW_int) == 4) {
     fprintf(
 	stderr,
-	"Long int is only four bytes!  Files larger than 4 GB may cause problems!\n");
+	"Integer size is only four bytes!  Files larger than 4 GB may cause problems!\n");
   }
   char fileNameOut[1024], fileNameSizes[1024], fileNameNMB[1024];
   char fileNameAngles[1024], fileNameDistort[1024];
@@ -587,20 +571,20 @@ main(int argc, char * const argv[])
 
   reader->scanFile();
 
-  unsigned int nTris = reader->getNumTris();
-  unsigned int nQuads = reader->getNumQuads();
-  unsigned int nFaces = reader->getNumFaces();
+  GMGW_int nTris = reader->getNumTris();
+  GMGW_int nQuads = reader->getNumQuads();
+  GMGW_int nFaces = reader->getNumFaces();
 
-  unsigned int (*faceToCell)[2] = new unsigned int[nFaces][2];
-  unsigned int nBadTris = 0, nBadQuads = 0;
+  GMGW_int (*faceToCell)[2] = new GMGW_int[nFaces][2];
+  GMGW_int nBadTris = 0, nBadQuads = 0;
   buildFaceList(reader, faceToCell, nBadTris, nBadQuads);
-  unsigned int nValidTris = nTris - nBadTris;
-  unsigned int nValidQuads = nQuads - nBadQuads;
+  GMGW_int nValidTris = nTris - nBadTris;
+  GMGW_int nValidQuads = nQuads - nBadQuads;
 
   writeSurfaceMesh(reader, fileNameOut, fileNameSizes, fileNameNMB,
-		   fileNameAngles, fileNameDistort, faceToCell,
-		   nValidTris, nValidQuads);
+		   fileNameAngles, fileNameDistort, faceToCell, nValidTris,
+		   nValidQuads);
 
-  printf("Deleting the last of the data\n");
+  cout << "Deleting the last of the data" << endl;
   return 0;
 }

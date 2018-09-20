@@ -5,32 +5,32 @@
  *      Author: cfog
  */
 
-
 /*
-    Copyright (C) The University of British Columbia, 2018.
+ Copyright (C) The University of British Columbia, 2018.
 
-    This file is part of UnstructuredMeshAnalyzer.
+ This file is part of UnstructuredMeshAnalyzer.
 
-    UnstructuredMeshAnalyzer is free software: you can redistribute it
-    and/or modify it under the terms of the GNU General Public License
-    as published by the Free Software Foundation, either version 3 of
-    the License, or (at your option) any later version.
+ UnstructuredMeshAnalyzer is free software: you can redistribute it
+ and/or modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation, either version 3 of
+ the License, or (at your option) any later version.
 
-    UnstructuredMeshAnalyzer is distributed in the hope that it will be
-    useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-    of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    General Public License for more details.
+ UnstructuredMeshAnalyzer is distributed in the hope that it will be
+ useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with UnstructuredMeshAnalyzer.  If not, see
-    <https://www.gnu.org/licenses/>.
-*/
+ You should have received a copy of the GNU General Public License
+ along with UnstructuredMeshAnalyzer.  If not, see
+ <https://www.gnu.org/licenses/>.
+ */
 
 #ifndef GMGW_UNSTR_HXX_
 #define GMGW_UNSTR_HXX_
 
 #include <string>
-#include <GMGW_FileWrapper.hxx>
+#include "config.h"
+#include "GMGW_FileWrapper.hxx"
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
@@ -43,13 +43,13 @@
 #define PRISM 13
 #define HEX 12
 
-int projectionChecks(const int nBdryVerts,
-                     const double bdryCoords[][3], double bdryDist[],
-                     int bdrySurf[], std::string nmbFileName);
+int
+projectionChecks(const GMGW_int nBdryVerts, const double bdryCoords[][3],
+		 double bdryDist[], GMGW_int bdrySurf[],
+		 std::string nmbFileName);
 
-void buildFaceList(FileWrapper* reader,
-                   unsigned int faceToCell[][2],
-                   unsigned int& badTris,
-                   unsigned int& badQuads);
+void
+buildFaceList(FileWrapper* reader, GMGW_int faceToCell[][2], GMGW_int& badTris,
+	      GMGW_int& badQuads);
 
 #endif /* GMGW_UNSTR_HXX_ */
