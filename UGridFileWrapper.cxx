@@ -48,8 +48,7 @@ UGridFileWrapper::UGridFileWrapper(const char fileNameBase[],
     cout << "Bad file name " << fileNameIn << endl;
     exit(1);
   }
-  const char* result = strstr(infix, "l");
-  if (result) {
+  if (infix[0] == 'l') {
     cout << "Little-endian UGrid file" << endl;
     bigEndian = false; // Looks like little endian.
   }
@@ -57,6 +56,31 @@ UGridFileWrapper::UGridFileWrapper(const char fileNameBase[],
     cout << "Big-endian UGrid file" << endl;
     bigEndian = true; // Looks like big endian.
   }
+  if (infix[2] == 'l') {
+    cout << "Reading a UGrid file with 64 bit ints" << endl;
+#ifdef GMGW_INT32
+    cout << "Reading and storing ints as 32 bit.  This won't end well; aborting." << endl;
+    exit(3);
+#endif
+  }
+  else {
+    cout << "Reading a UGrid file with 32 bit ints" << endl;
+#ifdef GMGW_INT64
+    cout << "Reading and storing ints as 64 bit.  This won't end well; aborting." << endl;
+    exit(3);
+#endif
+
+  }
+}
+
+GMGW_int
+UGridFileWrapper::convertToInt(const unsigned char raw[]) const
+{
+#ifdef GMGW_INT32
+  return convertToInt32(raw);
+#else
+  return convertToInt64(raw);
+#endif
 }
 
 int32_t
@@ -166,13 +190,14 @@ UGridFileWrapper::scanFile()
   size_t nRead = fread(raw, 1, 28, input);
   assert(nRead == 28);
 
-  nVerts = convertToInt32(raw);
-  nBdryTris = convertToInt32(raw + 4);
-  nBdryQuads = convertToInt32(raw + 8);
-  nTets = convertToInt32(raw + 12);
-  nPyrs = convertToInt32(raw + 16);
-  nPrisms = convertToInt32(raw + 20);
-  nHexes = convertToInt32(raw + 24);
+  size_t intSize = sizeof(GMGW_int);
+  nVerts = convertToInt(raw);
+  nBdryTris = convertToInt(raw + intSize);
+  nBdryQuads = convertToInt(raw + intSize * 2);
+  nTets = convertToInt(raw + intSize * 3);
+  nPyrs = convertToInt(raw + intSize * 4);
+  nPrisms = convertToInt(raw + intSize * 5);
+  nHexes = convertToInt(raw + intSize * 6);
 
   // Heuristic size check.  Far from foolproof, but should be right nearly
   // always, even if the file name is wrong.
@@ -188,13 +213,13 @@ UGridFileWrapper::scanFile()
     cout << "Looks like this file has different endianness.  Trying again."
 	<< endl;
     bigEndian = !bigEndian;
-    nVerts = convertToInt32(raw);
-    nBdryTris = convertToInt32(raw + 4);
-    nBdryQuads = convertToInt32(raw + 8);
-    nTets = convertToInt32(raw + 12);
-    nPyrs = convertToInt32(raw + 16);
-    nPrisms = convertToInt32(raw + 20);
-    nHexes = convertToInt32(raw + 24);
+    nVerts = convertToInt(raw);
+    nBdryTris = convertToInt(raw + intSize);
+    nBdryQuads = convertToInt(raw + intSize * 2);
+    nTets = convertToInt(raw + intSize * 3);
+    nPyrs = convertToInt(raw + intSize * 4);
+    nPrisms = convertToInt(raw + intSize * 5);
+    nHexes = convertToInt(raw + intSize * 6);
 
     numEquivTets = nTets + 2 * nPyrs + 3 * nPrisms + 6 * nHexes;
 
@@ -203,6 +228,7 @@ UGridFileWrapper::scanFile()
 
     if (maxTets < minTets || numEquivTets < minTets || numEquivTets > maxTets) {
       cout << "Neither enddianness looks right.  I give up." << endl;
+      cout << "Could also be a mismatch in integer size." << endl;
       exit(2);
     }
   }
@@ -313,7 +339,7 @@ UGridFileWrapper::getNextCellConnectivity(GMGW_int& nConn,
   size_t nRead = fread(raw, 1, sizeof(GMGW_int) * nConn, input);
   assert(nRead == sizeof(GMGW_int) * nConn);
   for (GMGW_int ii = 0; ii < nConn; ii++) {
-    connect[ii] = convertToInt32(raw + sizeof(GMGW_int) * ii) - 1;
+    connect[ii] = convertToInt(raw + sizeof(GMGW_int) * ii) - 1;
   }
   if (nConn == 5) {
     // This is a pyramid, so the order of data has to be changed.

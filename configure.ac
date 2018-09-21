@@ -18,10 +18,13 @@ AC_ARG_ENABLE([debug],
 # FIXME: Replace `main' with a function in `-lm':
 AC_CHECK_LIB([m], [sqrt])
 
-AC_SUBST(INT_SIZE)
 AC_ARG_ENABLE(64bit-ints,
-[AS_HELP_STRING([--enable-64bits-ints],[Use 64 bit integers instead of 32 bit])],[CXXFLAGS+=" -DGMGW_INT64"],[CXXFLAGS+=" -DGMGW_INT32"])
-echo $CXXFLAGS
+[AS_HELP_STRING([--enable-64bits-ints],[Use 64 bit integers instead of 32 bit])])
+if test "x$enable_64bit_ints" == "xyes" ; then
+	CXXFLAGS+=" -DGMGW_INT64"
+else
+	CXXFLAGS+=" -DGMGW_INT32"
+fi
 
 AC_ARG_WITH(geode,
 	[AS_HELP_STRING([--with-geode],[Provide a directory where the Pointwise GEODE geometry kernel can be found])],,with_geode="no")

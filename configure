@@ -631,7 +631,6 @@ GEODE_LIBS
 GEODE_INCLUDE
 GEODE_LFLAGS
 GEODE_DEFINES
-INT_SIZE
 ac_ct_CC
 CFLAGS
 CC
@@ -4010,15 +4009,16 @@ _ACEOF
 fi
 
 
-
 # Check whether --enable-64bit-ints was given.
 if test "${enable_64bit_ints+set}" = set; then :
-  enableval=$enable_64bit_ints; CXXFLAGS+=" -DGMGW_INT64"
-else
-  CXXFLAGS+=" -DGMGW_INT32"
+  enableval=$enable_64bit_ints;
 fi
 
-echo $CXXFLAGS
+if test "x$enable_64bit_ints" == "xyes" ; then
+	CXXFLAGS+=" -DGMGW_INT64"
+else
+	CXXFLAGS+=" -DGMGW_INT32"
+fi
 
 
 # Check whether --with-geode was given.

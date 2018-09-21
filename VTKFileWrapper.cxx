@@ -88,7 +88,7 @@ VTKFileWrapper::scanFile()
   assert(result == 2);
   for (GMGW_int ii = 0; ii < nInts; ii++) {
     GMGW_int dummy;
-    result = fscanf(input, " %d ", &dummy);
+    result = fscanf(input, " %" GMGW_int_format " ", &dummy);
     assert(result == 1);
   }
 
@@ -96,7 +96,7 @@ VTKFileWrapper::scanFile()
   m_isBdryFace = new bool[nCells];
 
   GMGW_int data;
-  result = fscanf(input, "CELL_TYPES %u\n", &data);
+  result = fscanf(input, "CELL_TYPES %" GMGW_int_format "\n", &data);
   assert(result == 1);
   assert(data == nCells);
   for (GMGW_int ii = 0; ii < nCells; ii++) {
@@ -155,10 +155,10 @@ void
 VTKFileWrapper::getNextCellConnectivity(GMGW_int& nConn,
 GMGW_int connect[]) const
 {
-  GMGW_int result = fscanf(input, " %d ", &nConn);
+  GMGW_int result = fscanf(input, " %" GMGW_int_format " ", &nConn);
   assert(result == 1);
   for (GMGW_int ii = 0; ii < nConn; ii++) {
-    result = fscanf(input, " %u ", &(connect[ii]));
+    result = fscanf(input, " %" GMGW_int_format " ", &(connect[ii]));
     assert(result == 1);
   }
 }

@@ -32,6 +32,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <fstream>
 
 using std::cout;
 using std::endl;
@@ -168,7 +169,7 @@ outputSizeRatios(FileWrapper* wrapper, const GMGW_int validTris,
   for (GMGW_int ii = 0; ii < 50; ii++) {
     fprintf(
 	sizeRatios,
-	"%4f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f %.6f\n",
+	"%4f %.10f %.10f %.10f %.10f %.10f %.10f %.10f %.10f %.10f %.10f %.10f %.10f\n",
 	(ii + 0.5) / 50,
 	tetTetCount ? tetTetRatio[ii] / tetTetCount : 0,
 	tetPyrCount ? tetPyrRatio[ii] / tetPyrCount : 0,
@@ -186,12 +187,13 @@ outputSizeRatios(FileWrapper* wrapper, const GMGW_int validTris,
 	prismHexCount ? prismHexRatio[ii] / prismHexCount : 0,
 	hexHexCount ? hexHexRatio[ii] / hexHexCount : 0);
   }
-  fprintf(sizeRatios,
-	  "# Counts %8u %8u %8u %8u %8u %8u %8u %8u %8u %8u %8u %8u\n",
-	  tetTetCount, tetPyrCount, tetPrismCount, pyrPyrViaTriCount,
-	  pyrPrismViaTriCount, prismPrismViaTriCount, pyrPyrViaQuadCount,
-	  pyrPrismViaQuadCount, prismPrismViaQuadCount, pyrHexCount,
-	  prismHexCount, hexHexCount);
+  fprintf(
+      sizeRatios,
+      "# Counts %12" GMGW_int_format " %12" GMGW_int_format " %12" GMGW_int_format " %12" GMGW_int_format " %12" GMGW_int_format " %12" GMGW_int_format " %12" GMGW_int_format " %12" GMGW_int_format " %12" GMGW_int_format " %12" GMGW_int_format " %12" GMGW_int_format " %12" GMGW_int_format "\n",
+      tetTetCount, tetPyrCount, tetPrismCount, pyrPyrViaTriCount,
+      pyrPrismViaTriCount, prismPrismViaTriCount, pyrPyrViaQuadCount,
+      pyrPrismViaQuadCount, prismPrismViaQuadCount, pyrHexCount, prismHexCount,
+      hexHexCount);
   fclose(sizeRatios);
 }
 
@@ -221,15 +223,15 @@ printDataStats(const double ignoreValue, GMGW_int dataSize, double* data,
 }
 
 void
-writeBdryFaceConnectivity(FILE* output, const GMGW_int nConn,
+writeBdryFaceConnectivity(std::fstream& output, const GMGW_int nConn,
 			  const GMGW_int connect[], const GMGW_int newIndex[])
 {
-  fprintf(output, "%" GMGW_int_format " ", nConn);
+  output << nConn << " ";
   for (GMGW_int ii = 0; ii < nConn; ii++) {
     assert(newIndex[connect[ii]] >= 0);
-    fprintf(output, "%" GMGW_int_format " ", newIndex[connect[ii]]);
+    output << newIndex[connect[ii]] << " ";
   }
-  fprintf(output, "\n");
+  output << endl;
 }
 
 // Write out a new VTK file with only the surface mesh in it.
@@ -241,21 +243,21 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
 		 const GMGW_int validQuads)
 {
   // Open the output file
-  FILE* output = fopen(outputFileName, "w");
+  std::fstream output(outputFileName);
   assert(output);
   std::string nmbFilename(nmbFileName_arg);
 
   // Write the file header
-  fprintf(output, "# vtk DataFile Version 2.0\n");
-  fprintf(output, "Surface extracted from volume mesh\n");
-  fprintf(output, "ASCII\n");
-  fprintf(output, "DATASET UNSTRUCTURED_GRID\n");
+  output << "# vtk DataFile Version 2.0" << endl;
+  output << "Surface extracted from volume mesh" << endl;
+  output << "ASCII" << endl;
+  output << "DATASET UNSTRUCTURED_GRID" << endl;
 
   // Write bdry vertex data
   wrapper->seekStartOfCoords();
   GMGW_int nBdryVerts = wrapper->getNumBdryVerts();
   GMGW_int nVerts = wrapper->getNumVerts();
-  fprintf(output, "POINTS %u float\n", nBdryVerts);
+  output << "POINTS " << nBdryVerts << " float" << endl;
   GMGW_int* newIndex = new GMGW_int[nVerts];
 
   double (*coords)[3] = new double[nVerts][3];
@@ -299,7 +301,8 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
     double& x = bdryCoords[ii][0];
     double& y = bdryCoords[ii][1];
     double& z = bdryCoords[ii][2];
-    fprintf(output, "%15.12f %15.12f %15.12f\n", x, y, z);
+    output << std::setprecision(8) << x << " " << std::setprecision(8) << y
+	<< " " << std::setprecision(8) << z << endl;
     if ((ii + 1) % 100000 == 0) {
       cout << (ii + 1) / 1000 << "K ";
       cout.flush();
@@ -349,8 +352,8 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
   static const GMGW_int VTKtype[] =
     { 0, 0, 0, 0, TET, PYRAMID, PRISM, 0, HEX };
 
-  fprintf(output, "CELLS %u %u\n", nBdryTris + nBdryQuads,
-	  4 * nBdryTris + 5 * nBdryQuads);
+  output << "CELLS " << nBdryTris + nBdryQuads << " "
+      << 4 * nBdryTris + 5 * nBdryQuads << endl;
   GMGW_int connect[8];
   for (GMGW_int iC = 0; iC < nCells; iC++) {
     GMGW_int nConn;
@@ -408,9 +411,8 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
   outputAngleHistograms(angleFile, quadFaceAngles, triFaceAngles,
 			dihedralsQuadQuad, dihedralsQuadTri, dihedralsTriTri);
   fclose(angleFile);
-  FILE* distortFile = fopen(distortFileName, "w");
-  outputDistortionHistogram(distortFile, quadDistortion);
-  fclose(distortFile);
+
+  outputDistortionHistogram(distortFileName, quadDistortion);
 
   // if (numNeg > 0) {
   //     // Write another VTK file, with all the elements that measured with
@@ -448,24 +450,24 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
 
   cout << "Writing cell types" << endl;
   // Write cell types
-  fprintf(output, "CELL_TYPES %u\n", nBdryTris + nBdryQuads);
+  output << "CELL_TYPES " << nBdryTris + nBdryQuads << endl;
 
   for (GMGW_int iC = 0; iC < nCells; iC++) {
     if (wrapper->isBdryFace(iC)) {
-      char type = wrapper->getCellType(iC);
-      fprintf(output, "%d\n", type);
+      short type = wrapper->getCellType(iC);
+      output << type << endl;
     }
   }
 
   cout << "Writing off-wall spacing" << endl;
   // Write off-wall spacing as point data.
-  fprintf(output, "POINT_DATA %u\n", nBdryVerts);
-  fprintf(output, "SCALARS WallSpacing float\n");
-  fprintf(output, "LOOKUP_TABLE default\n");
+  output << "POINT_DATA " << nBdryVerts << endl;
+  output << "SCALARS WallSpacing float" << endl;
+  output << "LOOKUP_TABLE default" << endl;
   for (GMGW_int iV = 0; iV < nBdryVerts; iV++) {
     if (volSpacing[iV] > 1.E99)
       volSpacing[iV] = -1;
-    fprintf(output, "%.6G\n", volSpacing[iV]);
+    output << std::setprecision(8) << volSpacing[iV] << endl;
   }
   printDataStats(-1, nBdryVerts, volSpacing, "Volume spacing");
   delete[] volSpacing;
@@ -473,12 +475,12 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
   cout << "Writing on-wall spacing" << endl;
   fflush(stdout);
   // Write on-wall spacing as point data.
-  fprintf(output, "SCALARS SkinSpacing float\n");
-  fprintf(output, "LOOKUP_TABLE default\n");
+  output << "SCALARS SkinSpacing float" << endl;
+  output << "LOOKUP_TABLE default" << endl;
   for (GMGW_int iV = 0; iV < nBdryVerts; iV++) {
     if (skinSpacing[iV] > 1.E99)
       skinSpacing[iV] = 0;
-    fprintf(output, "%.6G\n", skinSpacing[iV]);
+    output << std::setprecision(8) << skinSpacing[iV] << endl;
   }
   delete[] skinSpacing;
 
@@ -495,10 +497,10 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
       // there to check against.
       cout << "Writing wall projection distances" << endl;
       // Write projection distance as point data.
-      fprintf(output, "SCALARS ProjDistance float\n");
-      fprintf(output, "LOOKUP_TABLE default\n");
+      output << "SCALARS ProjDistance float" << endl;
+      output << "LOOKUP_TABLE default" << endl;
       for (GMGW_int iV = 0; iV < nBdryVerts; iV++) {
-	fprintf(output, "%.6G\n", bdryDist[iV]);
+	output << std::setprecision(8) << bdryDist[iV] << endl;
       }
       // Extract some stats (min, 5%-ile, median, 95%-ile, max) from
       // projection distance before nuking the data.
@@ -506,17 +508,17 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
       delete[] bdryDist;
 
       // Write surface projected to as point data.
-      fprintf(output, "SCALARS ProjSurf integer\n");
-      fprintf(output, "LOOKUP_TABLE default\n");
+      output << "SCALARS ProjSurf integer" << endl;
+      output << "LOOKUP_TABLE default" << endl;
       for (GMGW_int iV = 0; iV < nBdryVerts; iV++) {
-	fprintf(output, "%" GMGW_int_format "\n", bdrySurf[iV]);
+	output << bdrySurf[iV] << endl;
       }
 
       delete[] bdrySurf;
     }
   }
   delete[] bdryCoords;
-  fclose(output);
+  output.close();
 
   return true;
 }
@@ -524,15 +526,16 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
 void
 usage()
 {
-  fprintf(stderr,
-	  "analyzeVolMesh ft base_filename [-nmb NMB_geom_filename] [infix]\n");
-  fprintf(stderr, "  where ft (filetype) = vtk or ugrid\n");
-  fprintf(stderr, "  base_filename has no extension (.vtk, .infix.ugrid)\n");
-  fprintf(
-      stderr,
-      "  If linked using Pointwise's GEODE kernel, the NMB geometry file name must be given.\n");
-  fprintf(stderr,
-	  "  infix = b8, lb8, etc, is a valid ugrid file type specifier\n");
+  std::cerr
+      << "analyzeVolMesh ft base_filename [-nmb NMB_geom_filename] [infix]"
+      << endl;
+  std::cerr << "  where ft (filetype) = vtk or ugrid" << endl;
+  std::cerr << "  base_filename has no extension (.vtk, .infix.ugrid)" << endl;
+  std::cerr
+      << "  If linked using Pointwise's GEODE kernel, the NMB geometry file name must be given."
+      << endl;
+  std::cerr << "  infix = b8, lb8, etc, is a valid ugrid file type specifier"
+      << endl;
 }
 
 int
@@ -546,9 +549,9 @@ main(int argc, char * const argv[])
     exit(1);
   }
   if (sizeof(GMGW_int) == 4) {
-    fprintf(
-	stderr,
-	"Integer size is only four bytes!  Files larger than 4 GB may cause problems!\n");
+    std::cerr
+	<< "Integer size is only four bytes!  Files larger than 4 GB may cause problems!"
+	<< endl;
   }
   char fileNameOut[1024], fileNameSizes[1024], fileNameNMB[1024];
   char fileNameAngles[1024], fileNameDistort[1024];

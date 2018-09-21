@@ -53,6 +53,8 @@ public:
 
 
 private:
+  GMGW_int
+  convertToInt(const unsigned char raw[]) const;
   int32_t
   convertToInt32(const unsigned char raw[4]) const;
   int64_t

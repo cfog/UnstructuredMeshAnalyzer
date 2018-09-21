@@ -27,6 +27,8 @@
 
 #include <cmath>
 #include <cassert>
+#include <fstream>
+#include <iomanip>
 
 #include "GMGW_geom_utils.hxx"
 #include "GMGW_unstr.hxx"
@@ -71,17 +73,21 @@ outputAngleHistograms(FILE* angleFile, const GMGW_int quadFaceAngles[],
 }
 
 void
-outputDistortionHistogram(FILE* distortFile, const GMGW_int quadDistortion[])
+outputDistortionHistogram(const char* distortFileName,
+			  const GMGW_int quadDistortion[])
 {
+  std::fstream distortFile(distortFileName);
+
   double total = 0;
   for (GMGW_int ii = 0; ii < nDistortBins; ii++) {
     total += quadDistortion[ii];
   }
-  fprintf(distortFile, "%12s %12s\n", "#Bin-val", "distort");
+  distortFile << "# Bin-val     distort" << std::endl;
   for (GMGW_int ii = 0; ii < nDistortBins; ii++) {
-    fprintf(distortFile, "<%d %11.3f%%\n", ii - nDistortBins + 1,
-	    quadDistortion[ii] / total * 100);
+    distortFile << "<" << ii - nDistortBins + 1 << " " << std::setprecision(3)
+	<< quadDistortion[ii] / total * 100 << "%" << std::endl;
   }
+  distortFile.close();
 }
 
 double

@@ -81,6 +81,7 @@ outputAngleHistograms(FILE* angleFile, const GMGW_int quadFaceAngles[],
 		      const GMGW_int dihedralsTriTri[]);
 
 void
-outputDistortionHistogram(FILE* distortFile, const GMGW_int quadDistortion[]);
+outputDistortionHistogram(const char* distortFileName,
+			  const GMGW_int quadDistortion[]);
 
 #endif /* GMGW_GEOM_UTILS_HXX_ */
