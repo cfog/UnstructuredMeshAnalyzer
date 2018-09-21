@@ -75,3 +75,50 @@ the geometry.
 
 
 
+Output
+
+The mesh analyzer produces four files:
+
+1.  A VTK file (legacy ASCII format) that gives information associated
+with each surface point:
+
+  - The distance to the nearest interior point
+  - The distance to the nearest point on the surface
+  - The projected distance to the geometry defined in the .nmb file (if
+    specified)
+  - The surface ID in the geometry onto which each point is projected.
+
+2. A file, readable by gnuplot, that quantifies non-planarity of
+quadrilaterals in the mesh. (...-distort.dat).
+
+3. A file, readable by gnuplot, that gives histograms of size ratio for
+adjacent cells, arranged by the types of cells (tet-tet size ratio is
+separate from tet-prism size ratio, and so on).  This file also includes
+the total number of faces separating each pair of cell types.  Columns
+are labeled in the file.
+
+4. A file, readable by gnuplot, that gives histograms of dihedral and
+face angles.
+
+In the directories gnuplot-scripts and python-scripts, you will find the
+gnuplot and paraview script files used to produce the figures in the
+2018 AIAA SciTech paper analyzing meshes from the First AIAA Geometry
+and Mesh Generation Workshop / Third AIAA High-Lift Prediction Workshop.
+
+
+Reference
+
+For more information, including mathematical formulations of various
+quantities computed by the code and mentioned above, please see:
+
+Carl F. Ollivier Gooch. "Analysis of Unstructured Meshes from GMGW-1 /
+HiLiftPW-3", 2018 AIAA Aerospace Sciences Meeting, AIAA SciTech Forum,
+(AIAA 2018-0132) https://doi.org/10.2514/6.2018-0132.
+
+A PDF of this paper is included in the docs folder.
+
+If you find this tool helpful and use it in your own work, please cite
+this paper, as noted above.
+
+
+  
