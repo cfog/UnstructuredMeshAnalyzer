@@ -223,7 +223,7 @@ printDataStats(const double ignoreValue, GMGW_int dataSize, double* data,
 }
 
 void
-writeBdryFaceConnectivity(std::fstream& output, const GMGW_int nConn,
+writeBdryFaceConnectivity(std::ofstream& output, const GMGW_int nConn,
 			  const GMGW_int connect[], const GMGW_int newIndex[])
 {
   output << nConn << " ";
@@ -243,7 +243,7 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
 		 const GMGW_int validQuads)
 {
   // Open the output file
-  std::fstream output(outputFileName);
+  std::ofstream output(outputFileName);
   assert(output);
   std::string nmbFilename(nmbFileName_arg);
 
