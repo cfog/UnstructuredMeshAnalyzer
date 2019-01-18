@@ -201,6 +201,12 @@ triArea(const double coords[][3], const GMGW_int v0, const GMGW_int v1,
   }
   assert(e0 >= e1);
   assert(e1 >= e2);
+  if (e2 - (e0 -e1) < 0) {
+	  // These three edge lengths can't be a real triangle, because e0
+	  // is larger than the sum of e1 and e2.  Treat this triangle as
+	  // exactly linear, and return zero area.
+	  return 0;
+  }
   // The parentheses enforce a numerically stable order of operations.
   double Area = 0.25
       * sqrt(

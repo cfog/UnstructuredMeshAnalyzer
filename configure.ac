@@ -19,7 +19,7 @@ AC_ARG_ENABLE([debug],
 AC_CHECK_LIB([m], [sqrt])
 
 AC_ARG_ENABLE(64bit-ints,
-[AS_HELP_STRING([--enable-64bits-ints],[Use 64 bit integers instead of 32 bit])])
+[AS_HELP_STRING([--enable-64bit-ints],[Use 64 bit integers instead of 32 bit])])
 if test "x$enable_64bit_ints" == "xyes" ; then
 	CXXFLAGS+=" -DGMGW_INT64"
 else
