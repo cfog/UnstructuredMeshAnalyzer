@@ -180,7 +180,7 @@ angleBetweenVecs(const double vecA[3], const double vecB[3],
 }
 
 static double
-triArea(const double coords[][3], const GMGW_int v0, const GMGW_int v1,
+triArea_old(const double coords[][3], const GMGW_int v0, const GMGW_int v1,
 	const GMGW_int v2)
 {
   double e0 = distance(coords[v0], coords[v1]);
@@ -201,6 +201,7 @@ triArea(const double coords[][3], const GMGW_int v0, const GMGW_int v1,
   }
   assert(e0 >= e1);
   assert(e1 >= e2);
+  assert(e2 >= (e0-e1)); // astonishingly numerically possible for 180° inner edge angle (jww)
   // The parentheses enforce a numerically stable order of operations.
   double Area = 0.25
       * sqrt(
@@ -208,6 +209,49 @@ triArea(const double coords[][3], const GMGW_int v0, const GMGW_int v1,
 	      * (e0 + (e1 - e2)));
   return Area;
 }
+
+static double // replaces previous edge-length based version (jww)
+triArea(const double coords[][3], const GMGW_int v0, const GMGW_int v1,
+	const GMGW_int v2)
+{
+// the following is unneeded computational overshoot - only for the assertion below
+// would be sufficient to calculate pv1, pv2, nv1 and Area (jww)
+
+  double pv1[3], pv2[3], pv3[3], nv1[3], nv2[3], nv3[3];
+  pv1[0] =  coords[v1][0] - coords[v0][0];
+  pv1[1] =  coords[v1][1] - coords[v0][1];
+  pv1[2] =  coords[v1][2] - coords[v0][2];
+
+  pv2[0] =  coords[v2][0] - coords[v1][0];
+  pv2[1] =  coords[v2][1] - coords[v1][1];
+  pv2[2] =  coords[v2][2] - coords[v1][2];
+  
+  pv2[0] =  coords[v0][0] - coords[v2][0];
+  pv2[1] =  coords[v0][1] - coords[v2][1];
+  pv2[2] =  coords[v0][2] - coords[v2][2];
+  
+  nv1[0] = pv1[1]*pv2[2] - pv1[2]*pv2[1];
+  nv1[1] = pv1[2]*pv2[0] - pv1[0]*pv2[2];
+  nv1[2] = pv1[0]*pv2[1] - pv1[1]*pv2[0];
+
+  nv2[0] = pv2[1]*pv3[2] - pv2[2]*pv3[1];
+  nv2[1] = pv2[2]*pv3[0] - pv2[0]*pv3[2];
+  nv2[2] = pv2[0]*pv3[1] - pv2[1]*pv3[0];
+
+  nv3[0] = pv3[1]*pv1[2] - pv3[2]*pv1[1];
+  nv3[1] = pv3[2]*pv1[0] - pv3[0]*pv1[2];
+  nv3[2] = pv3[0]*pv1[1] - pv3[1]*pv1[0];
+
+  double Area  = 0.5* sqrt(nv1[0]*nv1[0]+nv1[1]*nv1[1]+nv1[2]*nv1[2]);
+  
+  double Area2 = 0.5* sqrt(nv2[0]*nv2[0]+nv2[1]*nv2[1]+nv2[2]*nv2[2]);
+  double Area3 = 0.5* sqrt(nv3[0]*nv3[0]+nv3[1]*nv3[1]+nv3[2]*nv3[2]);
+  double Area_mean = (Area + Area2 + Area3) / 3.;
+  assert ( Area != Area_mean); // didn't occur in my cases also the '!=' is a very strong assertion criterion (jww)
+
+  return Area;
+}
+
 
 void
 findOnWallSpacing(const double coords[][3], const GMGW_int nConn,
