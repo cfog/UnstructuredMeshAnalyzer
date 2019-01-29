@@ -39,7 +39,9 @@ using std::endl;
 #include "GMGW_FileWrapper.hxx"
 #include "GMGW_UGridFileWrapper.hxx"
 #include "GMGW_VTKFileWrapper.hxx"
-
+#ifdef HAVE_TAU
+#include "GMGW_TAUFileWrapper.hxx"
+#endif
 FileWrapper::FileWrapper() :
     input(nullptr), coordsStart(-1), connectStart(-1), nVerts(0), nCells(0), nBdryTris(
 	0), nBdryQuads(0), nTets(0), nPyrs(0), nPrisms(0), nHexes(0), nBdryVerts(
@@ -108,6 +110,11 @@ FileWrapper::factory(const char baseName[], const char type[],
   else if (strstr(type, "ugrid")) {
     return new UGridFileWrapper(baseName, ugridInfix);
   }
+#ifdef HAVE_TAU
+  else if (strstr(type, "tau")) {
+    return new TAUFileWrapper(baseName);
+  }
+#endif
   else {
     fprintf(stderr, "Missing or invalid file type: %s\n", type);
     exit(1);
