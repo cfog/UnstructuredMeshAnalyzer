@@ -180,7 +180,7 @@ angleBetweenVecs(const double vecA[3], const double vecB[3],
 }
 
 static double
-triArea_old(const double coords[][3], const GMGW_int v0, const GMGW_int v1,
+triArea(const double coords[][3], const GMGW_int v0, const GMGW_int v1,
 	const GMGW_int v2)
 {
   double e0 = distance(coords[v0], coords[v1]);
@@ -201,7 +201,12 @@ triArea_old(const double coords[][3], const GMGW_int v0, const GMGW_int v1,
   }
   assert(e0 >= e1);
   assert(e1 >= e2);
-  assert(e2 >= (e0-e1)); // astonishingly numerically possible for 180° inner edge angle (jww)
+  if (e2 - (e0 -e1) < 0) {
+	  // These three edge lengths can't be a real triangle, because e0
+	  // is larger than the sum of e1 and e2.  Treat this triangle as
+	  // exactly linear, and return zero area.
+	  return 0;
+  }
   // The parentheses enforce a numerically stable order of operations.
   double Area = 0.25
       * sqrt(
@@ -211,7 +216,7 @@ triArea_old(const double coords[][3], const GMGW_int v0, const GMGW_int v1,
 }
 
 static double // replaces previous edge-length based version (jww)
-triArea(const double coords[][3], const GMGW_int v0, const GMGW_int v1,
+triArea_alternative(const double coords[][3], const GMGW_int v0, const GMGW_int v1,
 	const GMGW_int v2)
 {
 // the following is unneeded computational overshoot - only for the assertion below
