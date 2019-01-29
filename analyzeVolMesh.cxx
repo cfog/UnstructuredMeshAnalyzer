@@ -243,7 +243,7 @@ writeSurfaceMesh(FileWrapper* wrapper, const char outputFileName[],
 		 const GMGW_int validQuads)
 {
   // Open the output file
-  std::fstream output(outputFileName);
+  std::fstream output(outputFileName, std::ios_base::out | std::ios_base::trunc);
   assert(output);
   std::string nmbFilename(nmbFileName_arg);
 
@@ -529,7 +529,11 @@ usage()
   std::cerr
       << "analyzeVolMesh ft base_filename [-nmb NMB_geom_filename] [infix]"
       << endl;
-  std::cerr << "  where ft (filetype) = vtk or ugrid" << endl;
+  std::cerr << "  where ft (filetype) = vtk or ugrid";
+#ifdef HAVE_TAU
+  std::cerr << " or tau";
+#endif  
+  std::cerr << endl;
   std::cerr << "  base_filename has no extension (.vtk, .infix.ugrid)" << endl;
   std::cerr
       << "  If linked using Pointwise's GEODE kernel, the NMB geometry file name must be given."
@@ -561,7 +565,7 @@ main(int argc, char * const argv[])
   snprintf(fileNameDistort, 1000, "%s-distort.dat", argv[2]);
   char infixDflt[] = "b8";
   int infixArgNum = 3;
-  if (strncmp(argv[3], "-nmb", 4) == 0) {
+  if (argc > 3 && strncmp(argv[3], "-nmb", 4) == 0) {
     snprintf(fileNameNMB, 1000, "%s", argv[4]);
     infixArgNum = 5;
   }
