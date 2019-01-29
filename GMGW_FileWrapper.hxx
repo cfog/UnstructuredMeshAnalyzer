@@ -144,8 +144,8 @@ public:
   seekStartOfConnectivity() const;
   virtual void
   getNextCellConnectivity(GMGW_int& nConn, GMGW_int connect[]) const = 0;
-  void
-  seekStartOfCoords() const;
+  virtual void // needs to be virtual to enable reading from streams instead of FILEs (jww)
+  seekStartOfCoords() const; 
   virtual void
   getNextVertexCoords(double& x, double& y, double &z) const = 0;
 protected:
