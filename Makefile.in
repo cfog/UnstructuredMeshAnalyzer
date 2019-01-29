@@ -11,10 +11,10 @@ clean:
 	rm *.o analyzeVolMesh
 
 %.o: %.cxx
-	@CXX@ -c @GEODE_INCLUDE@ -I. @CXXFLAGS@ @GEODE_DEFINES@ $< -o $@
+	@CXX@ -c @GEODE_INCLUDE@ -I. @CXXFLAGS@ @GEODE_DEFINES@ @TAU_DEFINES@ @TAU_INCLUDE@ $< -o $@
 
-analyzeVolMesh: analyzeVolMesh.o surface_proj.o FileWrapper.o VTKFileWrapper.o faceSorting.o UGridFileWrapper.o geom_utils.o
-	g++ -g -O2 -o $@ $^ @GEODE_LFLAGS@ @GEODE_LIBS@ $(LIBS)
+analyzeVolMesh: analyzeVolMesh.o surface_proj.o FileWrapper.o VTKFileWrapper.o faceSorting.o UGridFileWrapper.o geom_utils.o @TAU_OBJ@
+	g++ -g -O2 -o $@ $^ @GEODE_LFLAGS@ @GEODE_LIBS@ @TAU_LIBS@ @NETCDF_LIB@ @MPI_LIB@ $(LIBS)
 
 install:
 	cp analyzeVolMesh @prefix@/
