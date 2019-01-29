@@ -51,4 +51,4 @@ AC_DEFUN([AX_REQUIRE_DEFINED], [dnl
 ])dnl AX_REQUIRE_DEFINED
 
 m4_include([m4/m4_ax_cxx_compile_stdcxx.m4])
-m4_include([m4/m4_ax_cxx_compile_stdcxx_11.m4])
+#m4_include([m4/m4_ax_cxx_compile_stdcxx_11.m4])
