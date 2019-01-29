@@ -1,4 +1,4 @@
-AC_PREREQ([2.63])
+AC_PREREQ([2.69])
 AC_INIT([analyzeUnstrMesh], [1.0.0], [cfog@mech.ubc.ca])
 AC_CONFIG_SRCDIR([analyzeVolMesh.cxx])
 AC_CONFIG_HEADERS([config.h])
@@ -6,7 +6,7 @@ AC_CONFIG_MACRO_DIRS([m4])
 
 # Checks for programs.
 AC_PROG_CXX
-#AX_CXX_COMPILE_STDCXX
+AX_CXX_COMPILE_STDCXX_11
 
 AC_ARG_ENABLE([debug],
 [AS_HELP_STRING([--enable-debug],[Turn on warnings and debugging support])],
