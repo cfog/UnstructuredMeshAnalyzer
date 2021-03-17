@@ -145,9 +145,26 @@ public:
   virtual void
   getNextCellConnectivity(GMGW_int& nConn, GMGW_int connect[]) const = 0;
   virtual void // needs to be virtual to enable reading from streams instead of FILEs (jww)
-  seekStartOfCoords() const; 
+  seekStartOfCoords() const;
   virtual void
   getNextVertexCoords(double& x, double& y, double &z) const = 0;
+
+	GMGW_int getNumHexes() const {
+		return nHexes;
+	}
+
+	GMGW_int getNumPrisms() const {
+		return nPrisms;
+	}
+
+	GMGW_int getNumPyramids() const {
+		return nPyrs;
+	}
+
+	GMGW_int getNumTets() const {
+		return nTets;
+	}
+
 protected:
   void
   identifyBdryVerts();

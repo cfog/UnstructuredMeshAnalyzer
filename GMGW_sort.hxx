@@ -60,14 +60,7 @@ struct triSort {
   friend bool
   operator<(const triSort& triA, const triSort& triB)
   {
-    GMGW_int diff = triA.m_verts[0] - triB.m_verts[0];
-    if (diff == 0) {
-      diff = triA.m_verts[1] - triB.m_verts[1];
-      if (diff == 0) {
-	diff = triA.m_verts[2] - triB.m_verts[2];
-      }
-    }
-    return diff < 0;
+		return triCompare(triA, triB);
   }
 };
 
@@ -76,8 +69,8 @@ struct triHash {
   operator()(const triSort& ts) const
   {
     // Hash it!
-    static const size_t init = 0xcbf29ce484222325ULL;
-    static const size_t factor = 0x00000100000001b3ULL;
+		static const size_t init = 0xcbf29ce484222325ULL;
+		static const size_t factor = 0x00000100000001b3ULL;
     size_t result = init;
     result ^= ts.m_verts[0];
     result *= factor;
@@ -92,17 +85,25 @@ struct triHash {
 bool
 triCompare(const triSort& triA, const triSort& triB)
 {
-  GMGW_int diff = triA.m_verts[0] - triB.m_verts[0];
-  if (diff == 0) {
-    diff = triA.m_verts[1] - triB.m_verts[1];
-    if (diff == 0) {
-      diff = triA.m_verts[2] - triB.m_verts[2];
-      if (diff == 0) {
-	diff = triA.m_cell - triB.m_cell;
-      }
-    }
-  }
-  return diff < 0;
+	if (triA.m_verts[0] < triB.m_verts[0]) {
+		return true;
+	}
+	else if (triA.m_verts[0] > triB.m_verts[0]) {
+		return false;
+	}
+	if (triA.m_verts[1] < triB.m_verts[1]) {
+		return true;
+	}
+	else if (triA.m_verts[1] > triB.m_verts[1]) {
+		return false;
+	}
+	if (triA.m_verts[2] < triB.m_verts[2]) {
+		return true;
+	}
+	else if (triA.m_verts[2] > triB.m_verts[2]) {
+		return false;
+	}
+	return true; // Tie goes to A
 }
 
 struct quadSort {
@@ -128,17 +129,7 @@ struct quadSort {
   friend bool
   operator<(const quadSort& quadA, const quadSort& quadB)
   {
-    GMGW_int diff = quadA.m_verts[0] - quadB.m_verts[0];
-    if (diff == 0) {
-      diff = quadA.m_verts[1] - quadB.m_verts[1];
-      if (diff == 0) {
-	diff = quadA.m_verts[2] - quadB.m_verts[2];
-	if (diff == 0) {
-	  diff = quadA.m_verts[3] - quadB.m_verts[3];
-	}
-      }
-    }
-    return diff < 0;
+		return quadCompare(quadA, quadB);
   }
 };
 
@@ -147,8 +138,8 @@ struct quadHash {
   operator()(const quadSort& qs) const
   {
     // Hash it!
-    static const size_t init = 0xcbf29ce484222325ULL;
-    static const size_t factor = 0x00000100000001b3ULL;
+		static const size_t init = 0xcbf29ce484222325ULL;
+		static const size_t factor = 0x00000100000001b3ULL;
     size_t result = init;
     result ^= qs.m_verts[0];
     result *= factor;
@@ -165,20 +156,31 @@ struct quadHash {
 bool
 quadCompare(const quadSort& quadA, const quadSort& quadB)
 {
-  GMGW_int diff = quadA.m_verts[0] - quadB.m_verts[0];
-  if (diff == 0) {
-    diff = quadA.m_verts[1] - quadB.m_verts[1];
-    if (diff == 0) {
-      diff = quadA.m_verts[2] - quadB.m_verts[2];
-      if (diff == 0) {
-	diff = quadA.m_verts[3] - quadB.m_verts[3];
-	if (diff == 0) {
-	  diff = quadA.m_cell - quadB.m_cell;
+	if (quadA.m_verts[0] < quadB.m_verts[0]) {
+		return true;
 	}
-      }
-    }
-  }
-  return diff < 0;
+	else if (quadA.m_verts[0] > quadB.m_verts[0]) {
+		return false;
+	}
+	if (quadA.m_verts[1] < quadB.m_verts[1]) {
+		return true;
+	}
+	else if (quadA.m_verts[1] > quadB.m_verts[1]) {
+		return false;
+	}
+	if (quadA.m_verts[2] < quadB.m_verts[2]) {
+		return true;
+	}
+	else if (quadA.m_verts[2] > quadB.m_verts[2]) {
+		return false;
+	}
+	if (quadA.m_verts[3] < quadB.m_verts[3]) {
+		return true;
+	}
+	else if (quadA.m_verts[3] > quadB.m_verts[3]) {
+		return false;
+	}
+	return true; // Tie goes to A
 }
 
 #endif /* GMGW_SORT_HXX_ */

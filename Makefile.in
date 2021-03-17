@@ -1,19 +1,22 @@
 .SUFFIXES: .cxx
 
-LIBS=@LIBS@
+LIBS=@LIBS@ -Wl,-rpath -Wl,. -L. -lMeshIO
 
-all: analyzeVolMesh
+all: analyzeVolMesh libMeshIO.so
 
 depend:
 	makedepend -I. *.cxx
 
 clean:
 	rm *.o analyzeVolMesh
+	
+libMeshIO.so: FileWrapper.o VTKFileWrapper.o  UGridFileWrapper.o @TAU_OBJ@
+	g++ -shared -o libMeshIO.so $(EXTRAFLAGS) FileWrapper.o VTKFileWrapper.o  UGridFileWrapper.o @TAU_OBJ@
 
 %.o: %.cxx
-	@CXX@ -c @GEODE_INCLUDE@ -I. @CXXFLAGS@ @GEODE_DEFINES@ @TAU_DEFINES@ @TAU_INCLUDE@ $< -o $@
+	@CXX@ -fPIC -c @GEODE_INCLUDE@ -I. @CXXFLAGS@ @GEODE_DEFINES@ @TAU_DEFINES@ @TAU_INCLUDE@ $< -o $@
 
-analyzeVolMesh: analyzeVolMesh.o surface_proj.o FileWrapper.o VTKFileWrapper.o faceSorting.o UGridFileWrapper.o geom_utils.o @TAU_OBJ@
+analyzeVolMesh: analyzeVolMesh.o surface_proj.o faceSorting.o geom_utils.o libMeshIO.so
 	g++ -g -O2 -o $@ $^ @GEODE_LFLAGS@ @GEODE_LIBS@ @TAU_LIBS@ @NETCDF_LIB@ @MPI_LIB@ $(LIBS)
 
 install:

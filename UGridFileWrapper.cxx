@@ -203,13 +203,14 @@ UGridFileWrapper::scanFile()
   // always, even if the file name is wrong.
 
   // Number of equivalent tets is:
-  uint64_t numEquivTets = nTets + 2 * nPyrs + 3 * nPrisms + 6 * nHexes;
+  uint64_t numEquivTets = uint64_t(nTets) + 2 * uint64_t(nPyrs)
+    + 3 * uint64_t(nPrisms) + 6 * uint64_t(nHexes);
 
   // Approximate range of number of tets should be:
-  uint64_t minTets = 5 * nVerts;
-  uint64_t maxTets = 6.5 * nVerts; // Some windage added here.
+  uint64_t minTets = 4.5 * uint64_t(nVerts);
+  uint64_t maxTets = 6.5 * uint64_t(nVerts); // Some windage added here.
 
-  if (maxTets < minTets || numEquivTets < minTets || numEquivTets > maxTets) {
+  if (!(nVerts<20000) && (maxTets < minTets || minTets > numEquivTets || numEquivTets > maxTets)) {
     cout << "Looks like this file has different endianness.  Trying again."
 	<< endl;
     bigEndian = !bigEndian;
@@ -223,10 +224,10 @@ UGridFileWrapper::scanFile()
 
     numEquivTets = nTets + 2 * nPyrs + 3 * nPrisms + 6 * nHexes;
 
-    minTets = 5 * nVerts;
+    minTets = 4.5 * nVerts;
     maxTets = 6.5 * nVerts; // Some windage added here.
 
-    if (maxTets < minTets || numEquivTets < minTets || numEquivTets > maxTets) {
+    if (!(nVerts<20000) && (maxTets < minTets || minTets>numEquivTets || numEquivTets > maxTets)) {
       cout << "Neither enddianness looks right.  I give up." << endl;
       cout << "Could also be a mismatch in integer size." << endl;
       exit(2);

@@ -34,7 +34,6 @@
 using std::cout;
 using std::endl;
 
-
 #include "config.h"
 #include "GMGW_FileWrapper.hxx"
 #include "GMGW_UGridFileWrapper.hxx"
@@ -42,6 +41,12 @@ using std::endl;
 #ifdef HAVE_TAU
 #include "GMGW_TAUFileWrapper.hxx"
 #endif
+
+extern "C" {
+  void libMeshIO_is_present(void) {
+  }    
+}
+
 FileWrapper::FileWrapper() :
     input(nullptr), coordsStart(-1), connectStart(-1), nVerts(0), nCells(0), nBdryTris(
 	0), nBdryQuads(0), nTets(0), nPyrs(0), nPrisms(0), nHexes(0), nBdryVerts(
