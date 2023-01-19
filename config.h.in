@@ -73,9 +73,9 @@
 #undef size_t
 
 #ifdef GMGW_INT64
-typedef int64_t GMGW_int;
+typedef uint64_t GMGW_int;
 #define GMGW_int_format "lu"
 #else
-typedef int32_t GMGW_int;
+typedef uint32_t GMGW_int;
 #define GMGW_int_format "u"
 #endif
