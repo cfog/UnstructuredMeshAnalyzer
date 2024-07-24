@@ -43,6 +43,22 @@
 #define PRISM 13
 #define HEX 12
 
+static int CGNS_Type(const int VTK_Type) {
+	switch (VTK_Type) {
+	case BDRY_QUAD:
+		return 7;
+	case PYRAMID:
+		return 12;
+	case PRISM:
+		return 14;
+	case HEX:
+		return 17;
+	default:
+		// Correct for tris and tets; other cases are lot causes anyway.
+		return VTK_Type;
+	}
+}
+
 int
 projectionChecks(const GMGW_int nBdryVerts, const double bdryCoords[][3],
 		 double bdryDist[], GMGW_int bdrySurf[],

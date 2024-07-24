@@ -243,32 +243,32 @@ UGridFileWrapper::scanFile()
 
   GMGW_int iC = 0, end = nBdryTris;
   for (; iC < end; iC++) {
-    m_cellTypes[iC] = BDRY_TRI;
+    m_cellTypes[iC] = CGNS_Type(BDRY_TRI);
     m_isBdryFace[iC] = true;
   }
   end += nBdryQuads;
   for (; iC < end; iC++) {
-    m_cellTypes[iC] = BDRY_QUAD;
+    m_cellTypes[iC] = CGNS_Type(BDRY_QUAD);
     m_isBdryFace[iC] = true;
   }
   end += nTets;
   for (; iC < end; iC++) {
-    m_cellTypes[iC] = TET;
+    m_cellTypes[iC] = CGNS_Type(TET);
     m_isBdryFace[iC] = false;
   }
   end += nPyrs;
   for (; iC < end; iC++) {
-    m_cellTypes[iC] = PYRAMID;
+    m_cellTypes[iC] = CGNS_Type(PYRAMID);
     m_isBdryFace[iC] = false;
   }
   end += nPrisms;
   for (; iC < end; iC++) {
-    m_cellTypes[iC] = PRISM;
+    m_cellTypes[iC] = CGNS_Type(PRISM);
     m_isBdryFace[iC] = false;
   }
   end += nHexes;
   for (; iC < end; iC++) {
-    m_cellTypes[iC] = HEX;
+    m_cellTypes[iC] = CGNS_Type(HEX);
     m_isBdryFace[iC] = false;
   }
 

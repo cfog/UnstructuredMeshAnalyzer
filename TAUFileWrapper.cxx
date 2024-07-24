@@ -81,27 +81,27 @@ void TAUFileWrapper::scanFile()
     unsigned int i_cell = 0;
     for (unsigned int ii = 0; ii < nTets; ii++,i_cell++) {
         m_isBdryFace[i_cell] = false;
-        m_cellTypes[i_cell] = TET;
+        m_cellTypes[i_cell] = CGNS_Type(TET);
     }
     for (unsigned int ii = 0; ii < nPrisms; ii++,i_cell++) {
         m_isBdryFace[i_cell] = false;
-        m_cellTypes[i_cell] = PRISM;
+        m_cellTypes[i_cell] = CGNS_Type(PRISM);
     }
     for (unsigned int ii = 0; ii < nHexes; ii++,i_cell++) {
         m_isBdryFace[i_cell] = false;
-        m_cellTypes[i_cell] = HEX;
+        m_cellTypes[i_cell] = CGNS_Type(HEX);
     }
     for (unsigned int ii = 0; ii < nPyrs; ii++,i_cell++) {
         m_isBdryFace[i_cell] = false;
-        m_cellTypes[i_cell] = PYRAMID;
+        m_cellTypes[i_cell] = CGNS_Type(PYRAMID);
     }
     for (unsigned int ii = 0; ii < nBdryTris; ii++,i_cell++) {
         m_isBdryFace[i_cell] = true;
-        m_cellTypes[i_cell] = BDRY_TRI;
+        m_cellTypes[i_cell] = CGNS_Type(BDRY_TRI);
     }
     for (unsigned int ii = 0; ii < nBdryQuads; ii++,i_cell++) {
         m_isBdryFace[i_cell] = true;
-        m_cellTypes[i_cell] = BDRY_QUAD;
+        m_cellTypes[i_cell] = CGNS_Type(BDRY_QUAD);
     }
 
     identifyBdryVerts();
