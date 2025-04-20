@@ -102,7 +102,7 @@ VTKFileWrapper::scanFile()
   for (GMGW_int ii = 0; ii < nCells; ii++) {
     char type;
     result = fscanf(input, " %hhd \n", &type);
-    m_cellTypes[ii] = CGNS_Type(type);
+    m_cellTypes[ii] = type;
     switch (type)
       {
       case BDRY_TRI:
